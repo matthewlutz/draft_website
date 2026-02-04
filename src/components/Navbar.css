@@ -1,0 +1,22 @@
+/* Additional nav styles beyond index.css */
+.nav-logo:hover {
+  color: var(--text-primary);
+}
+
+.nav-logo:hover span {
+  color: var(--accent-gold);
+}
+
+/* Mobile menu animation */
+@media (max-width: 768px) {
+  .nav-links {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .nav-links.open {
+    display: flex;
+    max-height: 300px;
+  }
+}
