@@ -47,16 +47,6 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
           <span className="physical-item">{player.height}</span>
           <span className="physical-item">{player.weight} lbs</span>
         </div>
-
-        <div className="player-class">
-          <span>{player.class}</span>
-        </div>
-
-        <div className="player-round">
-          <span className={`round-badge round-${player.projectedRound}`}>
-            Rd {player.projectedRound}
-          </span>
-        </div>
       </Link>
 
       {onAddToBoard && (
