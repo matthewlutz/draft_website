@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProspectById, prospects } from '../data/prospects';
+import { getCollegeLogo } from '../data/collegeLogos';
 import './PlayerDetail.css';
 
 function PlayerDetail({ myBoard, onToggleBoard }) {
@@ -29,6 +30,7 @@ function PlayerDetail({ myBoard, onToggleBoard }) {
   const nextPlayer = currentIndex < prospects.length - 1 ? prospects[currentIndex + 1] : null;
 
   const positionClass = player.position.toLowerCase().replace('/', '-');
+  const collegeLogo = getCollegeLogo(player.college);
 
   // Format stats based on position
   const renderStats = () => {
@@ -130,7 +132,12 @@ function PlayerDetail({ myBoard, onToggleBoard }) {
             </div>
 
             <h1 className="player-header-name">{player.name}</h1>
-            <p className="player-header-college">{player.college}</p>
+            <div className="player-header-college">
+              {collegeLogo && (
+                <img src={collegeLogo} alt={`${player.college} logo`} className="college-logo" />
+              )}
+              <span>{player.college}</span>
+            </div>
 
             <div className="player-header-meta">
               <div className="meta-item">

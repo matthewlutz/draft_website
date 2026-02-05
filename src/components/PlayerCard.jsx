@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { getCollegeLogo } from '../data/collegeLogos';
 import './PlayerCard.css';
 
 function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = false }) {
   const positionClass = player.position.toLowerCase().replace('/', '-');
+  const collegeLogo = getCollegeLogo(player.college);
 
   return (
     <div className="player-card card">
@@ -14,8 +16,8 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
         )}
 
         <div className="player-logo">
-          {player.teamLogo ? (
-            <img src={player.teamLogo} alt="Team logo" className="team-logo-img" />
+          {collegeLogo ? (
+            <img src={collegeLogo} alt={`${player.college} logo`} className="team-logo-img" />
           ) : (
             <div className="team-logo-placeholder">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
