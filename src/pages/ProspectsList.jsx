@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { prospects } from '../data/prospects';
+import { customBigBoardRankings, customBoardName } from '../data/customBigBoard';
 import PlayerCard from '../components/PlayerCard';
 import SearchFilter from '../components/SearchFilter';
 import './ProspectsList.css';
@@ -13,9 +14,41 @@ function ProspectsList({ myBoard, onToggleBoard }) {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
+  const [boardType, setBoardType] = useState('consensus'); // 'consensus' or 'custom'
+
+  // Check if custom board has rankings
+  const hasCustomBoard = customBigBoardRankings.length > 0;
+
+  // Get prospects in the selected board order
+  const orderedProspects = useMemo(() => {
+    if (boardType === 'custom' && hasCustomBoard) {
+      // Create ordered list based on custom rankings
+      const ranked = [];
+      const rankedIds = new Set();
+
+      // First, add players in custom order
+      customBigBoardRankings.forEach((id, index) => {
+        const player = prospects.find(p => p.id === id);
+        if (player) {
+          ranked.push({ ...player, customRank: index + 1 });
+          rankedIds.add(id);
+        }
+      });
+
+      // Then add unranked players in consensus order
+      prospects.forEach(player => {
+        if (!rankedIds.has(player.id)) {
+          ranked.push({ ...player, customRank: ranked.length + 1 });
+        }
+      });
+
+      return ranked;
+    }
+    return prospects.map(p => ({ ...p, customRank: p.id }));
+  }, [boardType, hasCustomBoard]);
 
   const filteredProspects = useMemo(() => {
-    return prospects.filter((player) => {
+    return orderedProspects.filter((player) => {
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
@@ -48,9 +81,9 @@ function ProspectsList({ myBoard, onToggleBoard }) {
 
       return true;
     });
-  }, [filters]);
+  }, [filters, orderedProspects]);
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters or board type change
   useMemo(() => {
     setCurrentPage(1);
   }, [filters]);
@@ -111,6 +144,24 @@ function ProspectsList({ myBoard, onToggleBoard }) {
           </p>
         </div>
 
+        {/* Board Type Toggle */}
+        <div className="board-toggle">
+          <button
+            className={`board-toggle-btn ${boardType === 'consensus' ? 'active' : ''}`}
+            onClick={() => { setBoardType('consensus'); setCurrentPage(1); }}
+          >
+            Consensus Board
+          </button>
+          {hasCustomBoard && (
+            <button
+              className={`board-toggle-btn ${boardType === 'custom' ? 'active' : ''}`}
+              onClick={() => { setBoardType('custom'); setCurrentPage(1); }}
+            >
+              {customBoardName}
+            </button>
+          )}
+        </div>
+
         <SearchFilter filters={filters} onFilterChange={setFilters} />
 
         <div className="results-header">
@@ -140,7 +191,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
                 <PlayerCard
                   key={player.id}
                   player={player}
-                  rank={player.id}
+                  rank={boardType === 'custom' ? player.customRank : player.id}
                   onAddToBoard={onToggleBoard}
                   isOnBoard={isOnBoard(player.id)}
                 />
