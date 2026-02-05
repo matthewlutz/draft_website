@@ -21,7 +21,7 @@ export const customBigBoardRankings = [
 ];
 
 // Your board name (displayed in the UI)
-export const customBoardName = "Matt's Big Board";
+export const customBoardName = "Mr Lutz's Board";
 
 // Optional: Add notes for specific players
 // Format: { playerId: "Your note about this player" }

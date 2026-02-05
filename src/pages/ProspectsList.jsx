@@ -14,7 +14,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
-  const [boardType, setBoardType] = useState('consensus'); // 'consensus' or 'custom'
+  const [boardType, setBoardType] = useState('custom'); // 'custom' or 'consensus'
 
   // Check if custom board has rankings
   const hasCustomBoard = customBigBoardRankings.length > 0;
@@ -147,19 +147,17 @@ function ProspectsList({ myBoard, onToggleBoard }) {
         {/* Board Type Toggle */}
         <div className="board-toggle">
           <button
+            className={`board-toggle-btn ${boardType === 'custom' ? 'active' : ''}`}
+            onClick={() => { setBoardType('custom'); setCurrentPage(1); }}
+          >
+            {customBoardName}
+          </button>
+          <button
             className={`board-toggle-btn ${boardType === 'consensus' ? 'active' : ''}`}
             onClick={() => { setBoardType('consensus'); setCurrentPage(1); }}
           >
             Consensus Board
           </button>
-          {hasCustomBoard && (
-            <button
-              className={`board-toggle-btn ${boardType === 'custom' ? 'active' : ''}`}
-              onClick={() => { setBoardType('custom'); setCurrentPage(1); }}
-            >
-              {customBoardName}
-            </button>
-          )}
         </div>
 
         <SearchFilter filters={filters} onFilterChange={setFilters} />
