@@ -9,7 +9,7 @@ function Hero() {
         <div className="hero-pattern"></div>
       </div>
       <div className="container hero-content">
-        <div className="hero-badge">2026 NFL Draft</div>
+        <div className="hero-badge">Mr. Lutz's Draft Guide</div>
         <h1 className="hero-title">
           NFL Draft Guide
           <span className="hero-year">2026</span>

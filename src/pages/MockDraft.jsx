@@ -14,6 +14,7 @@ function MockDraft({ myBoard }) {
   const [showTeamSelect, setShowTeamSelect] = useState(true);
   const [roundCount, setRoundCount] = useState(1);
   const [randomness, setRandomness] = useState(0);
+  const [teamNeedsWeight, setTeamNeedsWeight] = useState(50);
   const [isSimulating, setIsSimulating] = useState(false);
   const [trades, setTrades] = useState([]); // Array of { pick, fromTeam, toTeam }
   const [showTradeModal, setShowTradeModal] = useState(false);
@@ -107,14 +108,49 @@ function MockDraft({ myBoard }) {
     return draftOrder.filter(p => p.round <= numRounds).length;
   };
 
-  // Get random pick based on randomness setting
-  const getRandomPick = useCallback((available) => {
+  // Get random pick based on randomness and team needs settings
+  const getRandomPick = useCallback((available, teamNeeds = []) => {
     if (available.length === 0) return null;
+
+    // Calculate the candidate pool size based on randomness
     const maxRange = Math.max(1, Math.floor(1 + (randomness / 100) * 3));
     const range = Math.min(maxRange, available.length);
-    const pickIndex = Math.floor(Math.random() * range);
-    return available[pickIndex];
-  }, [randomness]);
+
+    // Get the top candidates based on big board
+    let candidates = available.slice(0, Math.max(range * 3, 15)); // Consider more players for needs matching
+
+    // If team needs weight > 0, score candidates by needs matching
+    if (teamNeedsWeight > 0 && teamNeeds.length > 0) {
+      candidates = candidates.map(player => {
+        // Check if player's position matches any team need
+        const needIndex = teamNeeds.indexOf(player.position);
+        let needScore = 0;
+
+        if (needIndex !== -1) {
+          // Higher score for higher priority needs (earlier in the array)
+          needScore = (teamNeeds.length - needIndex) / teamNeeds.length;
+        }
+
+        // Big board score (higher = better rank, normalized)
+        const boardRank = available.indexOf(player);
+        const boardScore = 1 - (boardRank / Math.max(available.length, 1));
+
+        // Weighted combination of scores
+        const needsInfluence = teamNeedsWeight / 100;
+        const combinedScore = (boardScore * (1 - needsInfluence)) + (needScore * needsInfluence);
+
+        return { ...player, score: combinedScore };
+      });
+
+      // Sort by combined score
+      candidates.sort((a, b) => b.score - a.score);
+    }
+
+    // Pick from top candidates with some randomness
+    const finalRange = Math.min(range, candidates.length);
+    const pickIndex = Math.floor(Math.random() * finalRange);
+    return candidates[pickIndex];
+  }, [randomness, teamNeedsWeight]);
 
   // Simulate picks with delay until user pick or end
   const simulateWithDelay = useCallback((startIndex, drafted, onComplete) => {
@@ -143,7 +179,7 @@ function MockDraft({ myBoard }) {
 
       // Make CPU pick
       if (available.length > 0) {
-        const bestPick = getRandomPick(available);
+        const bestPick = getRandomPick(available, pickInfo.needs || []);
         if (bestPick) {
           currentDrafted = { ...currentDrafted, [pickInfo.pick]: bestPick };
           available = available.filter(p => p.id !== bestPick.id);
@@ -312,22 +348,44 @@ function MockDraft({ myBoard }) {
               </div>
             </div>
 
-            <div className="randomness-setting">
-              <h3>CPU Randomness</h3>
-              <p>Controls how much variance in CPU picks (0 = always best available, 100 = high variance)</p>
-              <div className="randomness-slider-container">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={randomness}
-                  onChange={(e) => setRandomness(parseInt(e.target.value))}
-                  className="randomness-slider"
-                />
-                <div className="randomness-labels">
-                  <span>Predictable</span>
-                  <span className="randomness-value">{randomness}%</span>
-                  <span>Chaotic</span>
+            <div className="cpu-settings">
+              <div className="cpu-setting">
+                <h3>CPU Randomness</h3>
+                <p>Controls how much variance in CPU picks (0 = always best available, 100 = high variance)</p>
+                <div className="slider-container">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={randomness}
+                    onChange={(e) => setRandomness(parseInt(e.target.value))}
+                    className="setting-slider"
+                  />
+                  <div className="slider-labels">
+                    <span>Predictable</span>
+                    <span className="slider-value">{randomness}%</span>
+                    <span>Chaotic</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="cpu-setting">
+                <h3>Team Needs Weight</h3>
+                <p>How much CPU prioritizes filling team needs vs best player available</p>
+                <div className="slider-container">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={teamNeedsWeight}
+                    onChange={(e) => setTeamNeedsWeight(parseInt(e.target.value))}
+                    className="setting-slider"
+                  />
+                  <div className="slider-labels">
+                    <span>BPA Only</span>
+                    <span className="slider-value">{teamNeedsWeight}%</span>
+                    <span>Needs Only</span>
+                  </div>
                 </div>
               </div>
             </div>

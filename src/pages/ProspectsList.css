@@ -28,7 +28,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  color: var(--text-secondary);
+  color: white;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -42,9 +42,9 @@
 }
 
 .board-toggle-btn.active {
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+  background: #ffb612;
   border-color: var(--accent-gold);
-  color: #000;
+  color: white;
   font-weight: 600;
 }
 
