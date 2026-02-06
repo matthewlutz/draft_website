@@ -531,21 +531,20 @@ function MockDraft({ myBoard }) {
                           </div>
                           <div className="player-list-draft">
                             {filteredPlayers.slice(0, 50).map((player) => (
-                              <div key={player.id} className="draft-player-row" onClick={() => makePick(player)}>
-                                <span className="player-rank">{player.id}</span>
-                                <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
-                                  {player.position}
-                                </span>
-                                <div className="player-info">
-                                  <span className="player-name">{player.name}</span>
-                                  <span className="player-college">{player.college}</span>
-                                </div>
+                              <div key={player.id} className="draft-player-row">
+                                <Link to={`/player/${player.id}`} className="draft-player-link">
+                                  <span className="player-rank">{player.id}</span>
+                                  <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
+                                    {player.position}
+                                  </span>
+                                  <div className="player-info">
+                                    <span className="player-name">{player.name}</span>
+                                    <span className="player-college">{player.college}</span>
+                                  </div>
+                                </Link>
                                 <button
                                   className="btn btn-primary btn-small"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    makePick(player);
-                                  }}
+                                  onClick={() => makePick(player)}
                                 >
                                   Draft
                                 </button>
