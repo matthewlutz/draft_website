@@ -536,8 +536,9 @@ function parseCSV(csv) {
       const height = values[4].replace(/"/g, '');
       const weight = parseInt(values[5]);
 
-      // Consolidate DL positions and track technique in notes
+      // Consolidate positions
       let notes = '';
+      // DL positions - track technique in notes
       if (position === 'DL1T') {
         notes = '1-tech (Nose Tackle)';
         position = 'DL';
@@ -547,6 +548,14 @@ function parseCSV(csv) {
       } else if (position === 'DL5T') {
         notes = '5-tech';
         position = 'DL';
+      }
+      // Consolidate linebacker positions into LB
+      if (position === 'ILB' || position === 'OLB') {
+        position = 'LB';
+      }
+      // Move OL to OG
+      if (position === 'OL') {
+        position = 'OG';
       }
 
       // Determine projected round based on rank
