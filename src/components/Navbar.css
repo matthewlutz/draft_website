@@ -7,6 +7,18 @@
   color: var(--accent-gold);
 }
 
+/* Auth section in navbar */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-left: var(--spacing-lg);
+}
+
+.nav-signup {
+  white-space: nowrap;
+}
+
 /* Mobile menu animation */
 @media (max-width: 768px) {
   .nav-links {
@@ -17,6 +29,15 @@
 
   .nav-links.open {
     display: flex;
-    max-height: 300px;
+    max-height: 400px;
+  }
+
+  .nav-auth {
+    margin-left: 0;
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--border-color);
+    width: 100%;
+    justify-content: center;
   }
 }

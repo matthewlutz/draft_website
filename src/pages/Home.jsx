@@ -118,30 +118,6 @@ function Home({ myBoard, onToggleBoard }) {
           </div>
         </div>
       </section>
-
-      {/* Sources */}
-      <section className="sources-section">
-        <div className="container">
-          <h2>Data Sources</h2>
-          <p className="sources-text">
-            Our consensus big board is compiled from multiple trusted sources including:
-          </p>
-          <div className="sources-list">
-            <a href="https://www.nfl.com/news/daniel-jeremiah-s-top-50-2026-nfl-draft-prospect-rankings-1-0" target="_blank" rel="noopener noreferrer">
-              NFL.com (Daniel Jeremiah)
-            </a>
-            <a href="https://www.espn.com/nfl/draft2026/story/_/id/46573669/2026-nfl-draft-rankings-mel-kiper-big-board-top-prospects-players-positions" target="_blank" rel="noopener noreferrer">
-              ESPN (Mel Kiper Jr.)
-            </a>
-            <a href="https://www.pff.com/draft/big-board" target="_blank" rel="noopener noreferrer">
-              Pro Football Focus
-            </a>
-            <a href="https://www.tankathon.com/nfl/big_board" target="_blank" rel="noopener noreferrer">
-              Tankathon
-            </a>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

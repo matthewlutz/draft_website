@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import UserMenu from './UserMenu';
 import './Navbar.css';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -55,6 +58,29 @@ function Navbar() {
           >
             Mock Draft
           </Link>
+
+          {!user ? (
+            <div className="nav-auth">
+              <Link
+                to="/login"
+                className="nav-link"
+                onClick={() => setIsOpen(false)}
+              >
+                Log In
+              </Link>
+              <Link
+                to="/register"
+                className="btn btn-primary btn-small nav-signup"
+                onClick={() => setIsOpen(false)}
+              >
+                Sign Up
+              </Link>
+            </div>
+          ) : (
+            <div className="nav-auth">
+              <UserMenu />
+            </div>
+          )}
         </div>
       </div>
     </nav>

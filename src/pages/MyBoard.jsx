@@ -1,11 +1,24 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { prospects } from '../data/prospects';
+import { useAuth } from '../context/AuthContext';
+import SyncStatus from '../components/SyncStatus';
 import './MyBoard.css';
 
-function MyBoard({ myBoard, onToggleBoard, onReorderBoard }) {
+function MyBoard({
+  myBoard,
+  onToggleBoard,
+  onReorderBoard,
+  syncStatus,
+  boardName,
+  isPublic,
+  shareSlug,
+  onTogglePublic,
+  onSetBoardName,
+}) {
+  const { user } = useAuth();
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
@@ -58,14 +71,33 @@ function MyBoard({ myBoard, onToggleBoard, onReorderBoard }) {
     }
   };
 
+  const copyShareLink = () => {
+    const url = `${window.location.origin}/shared/${shareSlug}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const positionClass = (position) => position.toLowerCase().replace('/', '-');
 
   return (
     <div className="my-board-page">
       <div className="container">
+        {!user && (
+          <div className="guest-banner">
+            <p>Sign up to save your board and access it anywhere</p>
+            <Link to="/register" className="btn btn-primary btn-small">
+              Sign Up Free
+            </Link>
+          </div>
+        )}
+
         <div className="page-header">
           <div className="page-header-content">
-            <h1>My Big Board</h1>
+            <div className="page-title-row">
+              <h1>{boardName}</h1>
+              {user && <SyncStatus status={syncStatus} />}
+            </div>
             <p className="page-subtitle">
               Create your personal prospect rankings by dragging players to reorder
             </p>
@@ -76,6 +108,32 @@ function MyBoard({ myBoard, onToggleBoard, onReorderBoard }) {
             </button>
           )}
         </div>
+
+        {user && (
+          <div className="sharing-section">
+            <label className="share-toggle">
+              <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={onTogglePublic}
+              />
+              <span>Share board publicly</span>
+            </label>
+            {isPublic && shareSlug && (
+              <div className="share-link-row">
+                <input
+                  type="text"
+                  readOnly
+                  value={`${window.location.origin}/shared/${shareSlug}`}
+                  className="share-link-input"
+                />
+                <button className="btn btn-small btn-secondary" onClick={copyShareLink}>
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {myBoard.length === 0 ? (
           <div className="empty-board">

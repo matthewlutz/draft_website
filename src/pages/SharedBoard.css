@@ -1,0 +1,51 @@
+.shared-board-page {
+  padding: var(--spacing-xl) 0;
+  min-height: 100vh;
+}
+
+.shared-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.shared-header h1 {
+  margin-bottom: var(--spacing-xs);
+}
+
+.shared-owner {
+  color: var(--accent-gold);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.shared-count {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.shared-item {
+  cursor: default;
+}
+
+.shared-item:hover {
+  border-color: var(--accent-gold);
+  background: var(--bg-card-hover);
+}
+
+.shared-board-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-2xl);
+  min-height: 400px;
+}
+
+.shared-board-error h2 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.shared-board-error p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+}

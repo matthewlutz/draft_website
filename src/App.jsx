@@ -1,40 +1,42 @@
-import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import { useBoard } from './hooks/useBoard';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import ProspectsList from './pages/ProspectsList';
 import PlayerDetail from './pages/PlayerDetail';
 import MyBoard from './pages/MyBoard';
 import MockDraft from './pages/MockDraft';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import SharedBoard from './pages/SharedBoard';
 import './App.css';
 
 function App() {
-  // Load my board from localStorage
-  const [myBoard, setMyBoard] = useState(() => {
-    const saved = localStorage.getItem('nfl-draft-my-board');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { loading } = useAuth();
+  const {
+    myBoard,
+    boardName,
+    isPublic,
+    shareSlug,
+    syncStatus,
+    togglePlayer,
+    reorderBoard,
+    setBoardName,
+    togglePublic,
+    migrateFromLocal,
+    hasLocalBoard,
+  } = useBoard();
 
-  // Save to localStorage whenever myBoard changes
-  useEffect(() => {
-    localStorage.setItem('nfl-draft-my-board', JSON.stringify(myBoard));
-  }, [myBoard]);
-
-  // Toggle player on/off the board
-  const handleToggleBoard = (player) => {
-    setMyBoard((prev) => {
-      const exists = prev.some((p) => p.id === player.id);
-      if (exists) {
-        return prev.filter((p) => p.id !== player.id);
-      }
-      return [...prev, player];
-    });
-  };
-
-  // Reorder the board
-  const handleReorderBoard = (newBoard) => {
-    setMyBoard(newBoard);
-  };
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="loading" style={{ minHeight: '100vh' }}>
+          <div className="spinner"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>
@@ -45,7 +47,7 @@ function App() {
             <Route
               path="/"
               element={
-                <Home myBoard={myBoard} onToggleBoard={handleToggleBoard} />
+                <Home myBoard={myBoard} onToggleBoard={togglePlayer} />
               }
             />
             <Route
@@ -53,7 +55,7 @@ function App() {
               element={
                 <ProspectsList
                   myBoard={myBoard}
-                  onToggleBoard={handleToggleBoard}
+                  onToggleBoard={togglePlayer}
                 />
               }
             />
@@ -62,7 +64,7 @@ function App() {
               element={
                 <PlayerDetail
                   myBoard={myBoard}
-                  onToggleBoard={handleToggleBoard}
+                  onToggleBoard={togglePlayer}
                 />
               }
             />
@@ -71,8 +73,14 @@ function App() {
               element={
                 <MyBoard
                   myBoard={myBoard}
-                  onToggleBoard={handleToggleBoard}
-                  onReorderBoard={handleReorderBoard}
+                  onToggleBoard={togglePlayer}
+                  onReorderBoard={reorderBoard}
+                  syncStatus={syncStatus}
+                  boardName={boardName}
+                  isPublic={isPublic}
+                  shareSlug={shareSlug}
+                  onTogglePublic={togglePublic}
+                  onSetBoardName={setBoardName}
                 />
               }
             />
@@ -82,35 +90,23 @@ function App() {
                 <MockDraft myBoard={myBoard} />
               }
             />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/register"
+              element={
+                <Register
+                  hasLocalBoard={hasLocalBoard}
+                  onMigrate={migrateFromLocal}
+                />
+              }
+            />
+            <Route path="/shared/:slug" element={<SharedBoard />} />
           </Routes>
         </main>
         <footer className="footer">
           <div className="container footer-content">
             <p>
-              NFL Draft Guide 2026 - Data compiled from{' '}
-              <a
-                href="https://www.nfl.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                NFL.com
-              </a>
-              ,{' '}
-              <a
-                href="https://www.espn.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ESPN
-              </a>
-              ,{' '}
-              <a
-                href="https://www.pff.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                PFF
-              </a>
+              NFL Draft Guide 2026
             </p>
           </div>
         </footer>

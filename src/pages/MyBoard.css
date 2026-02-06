@@ -22,6 +22,70 @@
   margin-bottom: var(--spacing-sm);
 }
 
+.page-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* Guest Banner */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(1, 51, 105, 0.3), rgba(1, 51, 105, 0.1));
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.guest-banner p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Sharing Section */
+.sharing-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.share-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.share-toggle input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--accent-gold);
+}
+
+.share-link-row {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.share-link-input {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+}
+
 /* Empty Board */
 .empty-board {
   display: flex;
