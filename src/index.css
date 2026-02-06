@@ -19,17 +19,6 @@
   --text-muted: #666666;
 
   /* Position colors */
-  --pos-qb: #e63946;
-  --pos-rb: #2a9d8f;
-  --pos-wr: #e9c46a;
-  --pos-te: #f4a261;
-  --pos-ot: #264653;
-  --pos-iol: #023047;
-  --pos-edge: #9d4edd;
-  --pos-dt: #7b2cbf;
-  --pos-lb: #3a86ff;
-  --pos-cb: #06d6a0;
-  --pos-s: #118ab2;
 
   /* Gradients */
   --gradient-hero: linear-gradient(135deg, #013369 0%, #0a0a0a 50%, #d50a0a 100%);
@@ -201,20 +190,9 @@ a:hover {
   border-radius: var(--radius-sm);
   text-transform: uppercase;
   min-width: 40px;
+  background: #ffb612;
+  color: #000;
 }
-
-.position-badge.qb { background: var(--pos-qb); }
-.position-badge.rb { background: var(--pos-rb); }
-.position-badge.wr { background: var(--pos-wr); color: #000; }
-.position-badge.te { background: var(--pos-te); color: #000; }
-.position-badge.ot { background: var(--pos-ot); }
-.position-badge.iol { background: var(--pos-iol); }
-.position-badge.edge { background: var(--pos-edge); }
-.position-badge.dt { background: var(--pos-dt); }
-.position-badge.lb { background: var(--pos-lb); }
-.position-badge.cb { background: var(--pos-cb); color: #000; }
-.position-badge.s { background: var(--pos-s); }
-.position-badge.cb\/wr { background: linear-gradient(90deg, var(--pos-cb) 50%, var(--pos-wr) 50%); }
 
 /* Round Badge */
 .round-badge {
