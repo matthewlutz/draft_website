@@ -143,7 +143,7 @@
 .board-stat .stat-value {
   font-size: 2rem;
   font-weight: 800;
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 .board-stat .stat-label {
@@ -177,7 +177,7 @@
 }
 
 .board-item:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   background: var(--bg-card-hover);
 }
 
@@ -207,7 +207,7 @@
 .board-item-rank .rank-number {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 .board-item-drag {
@@ -242,7 +242,7 @@
 .board-item-pos-rank {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 @media (min-width: 768px) {
@@ -268,7 +268,7 @@
 }
 
 .board-item:hover .board-item-name {
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 .board-item-college {

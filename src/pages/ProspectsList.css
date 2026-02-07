@@ -36,15 +36,15 @@
 }
 
 .board-toggle-btn:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   color: var(--text-primary);
   background: var(--bg-card-hover);
 }
 
 .board-toggle-btn.active {
-  background: #ffb612;
-  border-color: var(--accent-gold);
-  color: white;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
   font-weight: 600;
 }
 
@@ -65,7 +65,7 @@
 
 .results-text span {
   font-weight: 600;
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 /* Per Page Selector */
@@ -94,14 +94,14 @@
 }
 
 .per-page-btn:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   color: var(--text-primary);
 }
 
 .per-page-btn.active {
-  background: var(--accent-gold);
-  border-color: var(--accent-gold);
-  color: #000;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
   font-weight: 600;
 }
 
@@ -129,7 +129,7 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   background: var(--bg-card-hover);
 }
 
@@ -161,14 +161,14 @@
 }
 
 .pagination-page:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   background: var(--bg-card-hover);
 }
 
 .pagination-page.active {
-  background: var(--accent-gold);
-  border-color: var(--accent-gold);
-  color: #000;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
   font-weight: 700;
 }
 

@@ -16,22 +16,11 @@
 .hero-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(1, 51, 105, 0.4) 0%,
-    rgba(10, 10, 10, 0.95) 40%,
-    rgba(10, 10, 10, 0.95) 60%,
-    rgba(213, 10, 10, 0.3) 100%
-  );
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
 }
 
 .hero-pattern {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 25% 25%, rgba(255, 182, 18, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(1, 51, 105, 0.15) 0%, transparent 50%);
-  opacity: 0.5;
+  display: none;
 }
 
 .hero-content {
@@ -45,10 +34,10 @@
 .hero-badge {
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-lg);
-  background: rgba(255, 182, 18, 0.15);
-  border: 1px solid var(--accent-gold);
+  background: transparent;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  color: var(--accent-gold);
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -68,11 +57,7 @@
 .hero-year {
   display: block;
   font-size: 5rem;
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 50%, var(--accent-gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none;
+  color: var(--text-primary);
 }
 
 @media (min-width: 768px) {
@@ -147,7 +132,6 @@
 .hero-stat-label {
   font-size: 0.75rem;
   color: var(--text-muted);
-  text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 

@@ -118,8 +118,8 @@
 .modal-pos-rank {
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--accent-gold);
-  background: rgba(255, 182, 18, 0.15);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
 }
@@ -168,10 +168,10 @@
 }
 
 .modal-section h3 {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600;
   margin-bottom: var(--spacing-sm);
-  color: var(--accent-gold);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -470,8 +470,8 @@
   padding: var(--spacing-xs) var(--spacing-lg);
   font-size: 0.825rem;
   font-weight: 600;
-  background: var(--accent-primary);
-  color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -479,8 +479,7 @@
 }
 
 .modal-notes-save-btn:hover:not(:disabled) {
-  background: #0149a0;
-  transform: translateY(-1px);
+  background: #ffffff;
 }
 
 .modal-notes-save-btn:disabled {
@@ -514,8 +513,8 @@
   padding: var(--spacing-xs) var(--spacing-lg);
   font-size: 0.825rem;
   font-weight: 600;
-  background: var(--accent-gold);
-  color: #000;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -575,13 +574,12 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
-  background: var(--accent-primary);
-  color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .modal-board-btn:hover {
-  background: #0149a0;
-  transform: translateY(-1px);
+  background: #ffffff;
 }
 
 .modal-board-btn.on-board {
@@ -617,7 +615,7 @@
 
 .modal-nav-btn:hover {
   color: var(--text-primary);
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
 }
 
 .nav-arrow {
