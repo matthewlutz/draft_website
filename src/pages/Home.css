@@ -80,8 +80,7 @@
 }
 
 .position-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   box-shadow: var(--shadow-hover);
 }
 
@@ -133,14 +132,14 @@
 }
 
 .action-card:hover {
-  border-color: var(--accent-primary);
+  border-color: var(--text-muted);
 }
 
 .action-icon {
   width: 64px;
   height: 64px;
   margin-bottom: var(--spacing-lg);
-  color: var(--accent-gold);
+  color: var(--text-muted);
 }
 
 .action-icon svg {
@@ -191,6 +190,6 @@
 }
 
 .sources-list a:hover {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
 }

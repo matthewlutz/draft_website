@@ -1,7 +1,6 @@
 .mock-draft-page {
   padding: var(--spacing-lg) 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
 }
 
 .page-header {
@@ -32,18 +31,18 @@
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: rgba(255, 182, 18, 0.15);
-  border: 1px solid rgba(255, 182, 18, 0.3);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   font-size: 0.8rem;
-  color: var(--accent-gold);
+  color: var(--text-secondary);
 }
 
 .board-indicator::before {
   content: '';
   width: 6px;
   height: 6px;
-  background: var(--accent-gold);
+  background: var(--text-secondary);
   border-radius: 50%;
 }
 
@@ -236,7 +235,7 @@
 }
 
 .round-option:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   background: var(--bg-card-hover);
 }
 
@@ -255,17 +254,17 @@
 }
 
 .round-option:hover .round-radio {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
 }
 
 .round-option.selected {
-  border-color: var(--accent-gold);
-  background: rgba(255, 182, 18, 0.1);
+  border-color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .round-option.selected .round-radio {
-  border-color: var(--accent-gold);
-  background: var(--accent-gold);
+  border-color: var(--text-muted);
+  background: var(--text-primary);
 }
 
 .round-option.selected .round-radio::after {
@@ -281,7 +280,7 @@
 }
 
 .round-option.selected .round-label {
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 .round-label {
@@ -355,7 +354,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--accent-gold);
+  background: var(--text-primary);
   cursor: pointer;
   border: 2px solid var(--bg-secondary);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -370,7 +369,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--accent-gold);
+  background: var(--text-primary);
   cursor: pointer;
   border: 2px solid var(--bg-secondary);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -379,7 +378,7 @@
 .setting-slider::-webkit-slider-runnable-track {
   height: 8px;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--accent-gold) 0%, var(--bg-card) 100%);
+  background: var(--bg-card);
 }
 
 .setting-slider::-moz-range-track {
@@ -400,7 +399,7 @@
 .slider-value {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--accent-gold);
+  color: var(--text-primary);
   background: var(--bg-card);
   padding: 4px 12px;
   border-radius: var(--radius-sm);
@@ -435,7 +434,7 @@
 }
 
 .teams-selected strong {
-  color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 .btn-large {
@@ -449,16 +448,15 @@
   min-width: 200px;
   padding: var(--spacing-lg) var(--spacing-2xl);
   font-size: 1.2rem;
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 100%);
-  color: #000;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
-  box-shadow: 0 4px 15px rgba(255, 182, 18, 0.4);
   transition: all 0.2s ease;
 }
 
 .start-draft-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 182, 18, 0.5);
+  background: #ffffff;
+  box-shadow: var(--shadow-hover);
 }
 
 .start-draft-btn:disabled {
@@ -507,7 +505,7 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-gold) 0%, #ffd700 100%);
+  background: var(--text-primary);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -559,7 +557,7 @@
   content: '';
   width: 4px;
   height: 20px;
-  background: var(--accent-gold);
+  background: var(--text-primary);
   border-radius: 2px;
 }
 
@@ -586,8 +584,8 @@
 }
 
 .draft-pick.current {
-  background: linear-gradient(90deg, rgba(255, 182, 18, 0.15) 0%, transparent 100%);
-  border-left: 3px solid var(--accent-gold);
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid var(--text-primary);
 }
 
 .draft-pick.user-team:not(.current) {
@@ -600,7 +598,7 @@
 }
 
 .draft-pick.picked .pick-number {
-  background: var(--accent-gold);
+  background: var(--text-primary);
   color: #000;
 }
 
@@ -635,7 +633,7 @@
 .user-badge {
   font-size: 0.55rem;
   padding: 2px 5px;
-  background: var(--accent-gold);
+  background: var(--text-primary);
   color: #000;
   border-radius: 3px;
   font-weight: 800;
@@ -671,7 +669,7 @@
 }
 
 .pick-empty.on-clock {
-  color: var(--accent-gold);
+  color: var(--text-primary);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -682,7 +680,7 @@
   content: '';
   width: 8px;
   height: 8px;
-  background: var(--accent-gold);
+  background: var(--text-primary);
   border-radius: 50%;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -840,7 +838,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
 }
 
 .search-input::placeholder {
@@ -860,7 +858,7 @@
 
 .position-select:focus {
   outline: none;
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
 }
 
 /* Available Players */
@@ -911,7 +909,7 @@
 }
 
 .draft-player-row:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   background: var(--bg-card-hover);
 }
 
@@ -1031,7 +1029,7 @@
 
 /* Draft Complete */
 .draft-complete {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: var(--spacing-2xl);
@@ -1041,7 +1039,7 @@
 .complete-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 100%);
+  background: var(--bg-card-hover);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1052,10 +1050,7 @@
 
 .draft-complete h2 {
   font-size: 1.8rem;
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -1328,7 +1323,7 @@
 
 .close-btn:hover {
   background: var(--bg-card-hover);
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   color: var(--text-primary);
 }
 
@@ -1374,13 +1369,13 @@
 }
 
 .trade-pick-btn:hover {
-  border-color: var(--accent-gold);
+  border-color: var(--text-muted);
   background: var(--bg-card-hover);
 }
 
 .trade-pick-btn.selected {
-  border-color: var(--accent-gold);
-  background: rgba(255, 182, 18, 0.15);
+  border-color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .trade-pick-btn .pick-num {
@@ -1398,7 +1393,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  color: var(--accent-gold);
+  color: var(--text-primary);
   padding: 0 var(--spacing-sm);
 }
 
