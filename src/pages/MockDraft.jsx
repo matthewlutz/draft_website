@@ -23,6 +23,9 @@ function MockDraft({ myBoard }) {
   const [tradeTargetPick, setTradeTargetPick] = useState(null);
   const [modalPlayer, setModalPlayer] = useState(null);
   const [modalPlayerIndex, setModalPlayerIndex] = useState(null);
+  const [pickDebugInfo, setPickDebugInfo] = useState({});
+  const [filledNeeds, setFilledNeeds] = useState({});
+  const [showDebug, setShowDebug] = useState(false);
   const currentPickRef = useRef(null);
   const simulationRef = useRef(null);
 
@@ -111,60 +114,133 @@ function MockDraft({ myBoard }) {
     return draftOrder.filter(p => p.round <= numRounds).length;
   };
 
-  // Get random pick based on randomness and team needs settings
-  const getRandomPick = useCallback((available, teamNeeds = []) => {
+  // Position value premiums by round tier
+  const positionPremiums = useMemo(() => ({
+    early: { QB: 0.3, EDGE: 0.2, OT: 0.2, CB: 0.15, WR: 0.1, DL: 0.1 },
+    mid:   { WR: 0.15, S: 0.1, LB: 0.1, DL: 0.1 },
+    late:  { RB: 0.15, OG: 0.1, OC: 0.1, TE: 0.1 }
+  }), []);
+
+  // Evaluate all candidates and return best pick with debug info
+  const evaluatePick = useCallback((available, pickInfo, currentFilledNeeds) => {
     if (available.length === 0) return null;
 
-    // Calculate the candidate pool size based on randomness
-    const maxRange = Math.max(1, Math.floor(1 + (randomness / 100) * 3));
-    const range = Math.min(maxRange, available.length);
+    const teamNeeds = pickInfo.needs || [];
+    const abbrev = pickInfo.abbrev;
+    const teamFilled = currentFilledNeeds[abbrev] || {};
+    const round = pickInfo.round;
 
-    // Get the top candidates based on big board
-    let candidates = available.slice(0, Math.max(range * 3, 15)); // Consider more players for needs matching
+    // Determine round tier for position premiums
+    const roundTier = round <= 2 ? 'early' : round <= 4 ? 'mid' : 'late';
+    const premiums = positionPremiums[roundTier];
 
-    // If team needs weight > 0, score candidates by needs matching
-    if (teamNeedsWeight > 0 && teamNeeds.length > 0) {
-      candidates = candidates.map(player => {
-        // Check if player's position matches any team need
+    // Candidate pool: wider than before
+    const maxRange = Math.max(1, Math.floor(1 + (randomness / 100) * 4));
+    const candidatePoolSize = Math.max(maxRange * 3, 20);
+    const candidates = available.slice(0, Math.min(candidatePoolSize, available.length));
+
+    // Score each candidate
+    const scored = candidates.map((player, idx) => {
+      // 1. Board Score (BPA)
+      const boardScore = 1 - (idx / candidatePoolSize);
+
+      // 2. Need Score with diminishing returns
+      let needScore = 0;
+      if (teamNeeds.length > 0) {
         const needIndex = teamNeeds.indexOf(player.position);
-        let needScore = 0;
-
         if (needIndex !== -1) {
-          // Higher score for higher priority needs (earlier in the array)
-          needScore = (teamNeeds.length - needIndex) / teamNeeds.length;
+          const baseNeedScore = (teamNeeds.length - needIndex) / teamNeeds.length;
+          const timesFilled = teamFilled[player.position] || 0;
+          needScore = baseNeedScore * Math.pow(0.5, timesFilled);
         }
+      }
 
-        // Big board score (higher = better rank, normalized)
-        const boardRank = available.indexOf(player);
-        const boardScore = 1 - (boardRank / Math.max(available.length, 1));
+      // 3. Position Value Score
+      const premium = premiums[player.position] || 0;
+      const posValueScore = 0.5 + premium;
 
-        // Weighted combination of scores
-        const needsInfluence = teamNeedsWeight / 100;
-        const combinedScore = (boardScore * (1 - needsInfluence)) + (needScore * needsInfluence);
+      // 4. Reach Penalty (player.id = consensus rank)
+      const reachGap = player.id - pickInfo.pick;
+      let reachPenalty = 0;
+      if (reachGap > 40) reachPenalty = 0.3;
+      else if (reachGap > 25) reachPenalty = 0.15;
+      else if (reachGap > 15) reachPenalty = 0.05;
 
-        return { ...player, score: combinedScore };
-      });
+      // Combine scores with dynamic weights
+      const needsInfluence = teamNeedsWeight / 100;
+      const W_board = (1 - needsInfluence) * 0.65 + 0.2;
+      const W_need = needsInfluence * 0.6;
+      const W_posValue = 0.15;
 
-      // Sort by combined score
-      candidates.sort((a, b) => b.score - a.score);
+      const finalScore = (boardScore * W_board) + (needScore * W_need) + (posValueScore * W_posValue) - reachPenalty;
+
+      return { player, boardScore, needScore, posValueScore, reachPenalty, finalScore, W_board, W_need, W_posValue };
+    });
+
+    // Sort by final score descending
+    scored.sort((a, b) => b.finalScore - a.finalScore);
+
+    // Apply randomness to pick from top N
+    const finalRange = Math.max(1, Math.floor(1 + (randomness / 100) * 4));
+    const pickIndex = Math.floor(Math.random() * Math.min(finalRange, scored.length));
+    const selected = scored[pickIndex];
+
+    // Classify pick type
+    const flags = [];
+    if (selected.boardScore > 0.8 && selected.needScore < 0.3) flags.push('BPA');
+    else if (selected.needScore > 0.5 && selected.boardScore < 0.6) flags.push('Need');
+    else if (selected.boardScore > 0.5 && selected.needScore > 0.3) flags.push('BPA + Need');
+    else if (selected.boardScore > 0.5) flags.push('BPA');
+    else flags.push('Need');
+
+    if (selected.reachPenalty > 0 && !flags.includes('Reach')) {
+      if (flags[0] === 'BPA') flags[0] = 'Reach';
+      else flags.push('Reach');
     }
 
-    // Pick from top candidates with some randomness
-    const finalRange = Math.min(range, candidates.length);
-    const pickIndex = Math.floor(Math.random() * finalRange);
-    return candidates[pickIndex];
-  }, [randomness, teamNeedsWeight]);
+    const pickType = flags.join(' + ');
+
+    // Confidence score
+    const maxPossible = selected.W_board + selected.W_need + selected.W_posValue;
+    const confidence = Math.min(99, Math.max(0, Math.round((selected.finalScore / maxPossible) * 100)));
+
+    // Top 3 runners-up (excluding selected)
+    const runners = scored
+      .filter((s, i) => i !== pickIndex)
+      .slice(0, 3)
+      .map(s => ({ name: s.player.name, position: s.player.position, finalScore: s.finalScore }));
+
+    return {
+      player: selected.player,
+      debug: {
+        boardScore: selected.boardScore,
+        needScore: selected.needScore,
+        posValueScore: selected.posValueScore,
+        reachPenalty: selected.reachPenalty,
+        finalScore: selected.finalScore,
+        confidence,
+        pickType,
+        teamNeeds,
+        filledPositions: { ...teamFilled },
+        runners
+      }
+    };
+  }, [randomness, teamNeedsWeight, positionPremiums]);
 
   // Simulate picks with delay until user pick or end
-  const simulateWithDelay = useCallback((startIndex, drafted, onComplete) => {
+  const simulateWithDelay = useCallback((startIndex, drafted, onComplete, existingFilledNeeds = {}) => {
     let pickIndex = startIndex;
     let currentDrafted = { ...drafted };
     let available = getAvailablePlayers(currentDrafted);
+    const currentFilledNeeds = JSON.parse(JSON.stringify(existingFilledNeeds));
+    const currentDebugInfo = {};
 
     const makeNextPick = () => {
       if (pickIndex >= activePicks.length) {
         setIsSimulating(false);
         setCurrentPick(activePicks[activePicks.length - 1].pick + 1);
+        setPickDebugInfo(prev => ({ ...prev, ...currentDebugInfo }));
+        setFilledNeeds(currentFilledNeeds);
         if (onComplete) onComplete(currentDrafted);
         return;
       }
@@ -176,28 +252,38 @@ function MockDraft({ myBoard }) {
         setIsSimulating(false);
         setCurrentPick(pickInfo.pick);
         setDraftedPlayers(currentDrafted);
+        setPickDebugInfo(prev => ({ ...prev, ...currentDebugInfo }));
+        setFilledNeeds(currentFilledNeeds);
         if (onComplete) onComplete(currentDrafted);
         return;
       }
 
       // Make CPU pick
       if (available.length > 0) {
-        const bestPick = getRandomPick(available, pickInfo.needs || []);
-        if (bestPick) {
-          currentDrafted = { ...currentDrafted, [pickInfo.pick]: bestPick };
-          available = available.filter(p => p.id !== bestPick.id);
+        const result = evaluatePick(available, pickInfo, currentFilledNeeds);
+        if (result) {
+          const { player, debug } = result;
+          currentDrafted = { ...currentDrafted, [pickInfo.pick]: player };
+          available = available.filter(p => p.id !== player.id);
           setDraftedPlayers(currentDrafted);
           setCurrentPick(pickInfo.pick);
+
+          // Track filled needs
+          if (!currentFilledNeeds[pickInfo.abbrev]) currentFilledNeeds[pickInfo.abbrev] = {};
+          currentFilledNeeds[pickInfo.abbrev][player.position] = (currentFilledNeeds[pickInfo.abbrev][player.position] || 0) + 1;
+
+          // Store debug info
+          currentDebugInfo[pickInfo.pick] = debug;
         }
       }
 
       pickIndex++;
-      simulationRef.current = setTimeout(makeNextPick, 150); // 150ms delay between picks
+      simulationRef.current = setTimeout(makeNextPick, 150);
     };
 
     setIsSimulating(true);
     makeNextPick();
-  }, [activePicks, userTeams, getAvailablePlayers, getRandomPick]);
+  }, [activePicks, userTeams, getAvailablePlayers, evaluatePick]);
 
   // Cleanup simulation on unmount
   useEffect(() => {
@@ -212,10 +298,12 @@ function MockDraft({ myBoard }) {
     setDraftStarted(true);
     setShowTeamSelect(false);
     setDraftedPlayers({});
+    setPickDebugInfo({});
+    setFilledNeeds({});
 
     // Start simulation from pick 1
     const firstPickIndex = 0;
-    simulateWithDelay(firstPickIndex, {});
+    simulateWithDelay(firstPickIndex, {}, null, {});
   };
 
   const resetDraft = () => {
@@ -230,6 +318,9 @@ function MockDraft({ myBoard }) {
     setSearchTerm('');
     setPositionFilter('');
     setTrades([]);
+    setPickDebugInfo({});
+    setFilledNeeds({});
+    setShowDebug(false);
   };
 
   const makePick = (player) => {
@@ -238,10 +329,19 @@ function MockDraft({ myBoard }) {
     setSearchTerm('');
     setPositionFilter('');
 
+    // Track user's filled needs
+    const updatedFilledNeeds = JSON.parse(JSON.stringify(filledNeeds));
+    if (currentPickInfo) {
+      const abbrev = currentPickInfo.abbrev;
+      if (!updatedFilledNeeds[abbrev]) updatedFilledNeeds[abbrev] = {};
+      updatedFilledNeeds[abbrev][player.position] = (updatedFilledNeeds[abbrev][player.position] || 0) + 1;
+    }
+    setFilledNeeds(updatedFilledNeeds);
+
     // Find next pick index and simulate
     const nextIndex = currentPickIndex + 1;
     if (nextIndex < activePicks.length) {
-      simulateWithDelay(nextIndex, newDrafted);
+      simulateWithDelay(nextIndex, newDrafted, null, updatedFilledNeeds);
     } else {
       setCurrentPick(activePicks[activePicks.length - 1].pick + 1);
     }
@@ -618,6 +718,14 @@ function MockDraft({ myBoard }) {
               <div className="draft-board">
                 <div className="draft-board-header">
                   <h2>Draft Board</h2>
+                  {Object.keys(pickDebugInfo).length > 0 && (
+                    <button
+                      className="debug-toggle-small"
+                      onClick={() => setShowDebug(!showDebug)}
+                    >
+                      {showDebug ? 'Hide' : 'Show'} Analysis
+                    </button>
+                  )}
                 </div>
 
                 <div className="draft-picks">
@@ -648,6 +756,11 @@ function MockDraft({ myBoard }) {
                               {player.position}
                             </span>
                             <span className="player-name">{player.name}</span>
+                            {pickDebugInfo[pick] && (
+                              <span className={`pick-type-badge ${pickDebugInfo[pick].pickType.toLowerCase().replace(/\s\+\s/g, '-')}`}>
+                                {pickDebugInfo[pick].pickType}
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <div className={`pick-empty ${isCurrent ? 'on-clock' : ''}`}>
@@ -660,6 +773,46 @@ function MockDraft({ myBoard }) {
                 </div>
               </div>
             </div>
+
+            {/* Debug Analysis Panel */}
+            {Object.keys(pickDebugInfo).length > 0 && showDebug && (
+              <div className="debug-section">
+                <div className="debug-log">
+                  {Object.entries(pickDebugInfo)
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([pickNum, debug]) => {
+                      const pick = activePicks.find(p => p.pick === Number(pickNum));
+                      const player = draftedPlayers[pickNum];
+                      return (
+                        <div key={pickNum} className="debug-entry">
+                          <div className="debug-header">
+                            <span className="debug-pick">#{pickNum}</span>
+                            <span className="debug-team">{pick?.abbrev}</span>
+                            <span className="debug-player">{player?.name} ({player?.position})</span>
+                            <span className={`pick-type-badge ${debug.pickType.toLowerCase().replace(/\s\+\s/g, '-')}`}>{debug.pickType}</span>
+                            <span className="debug-confidence">{debug.confidence}%</span>
+                          </div>
+                          <div className="debug-scores">
+                            <span>Board: {debug.boardScore.toFixed(2)}</span>
+                            <span>Need: {debug.needScore.toFixed(2)}</span>
+                            <span>Pos Value: {debug.posValueScore.toFixed(2)}</span>
+                            {debug.reachPenalty > 0 && <span className="debug-reach">Reach: -{debug.reachPenalty.toFixed(2)}</span>}
+                          </div>
+                          <div className="debug-meta">
+                            <span>Needs: [{debug.teamNeeds.join(', ')}]</span>
+                            <span>Filled: {Object.keys(debug.filledPositions).length > 0
+                              ? Object.entries(debug.filledPositions).map(([p,c]) => `${p}\u00d7${c}`).join(', ')
+                              : '\u2014'}</span>
+                          </div>
+                          <div className="debug-runners">
+                            Runners-up: {debug.runners.map(r => `${r.name} (${r.finalScore.toFixed(2)})`).join(', ')}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
           </>
         )}
 
