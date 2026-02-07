@@ -613,6 +613,17 @@ export const positionGroups = {
   'Special Teams': ['PK', 'P', 'LS']
 };
 
+// Calculate position ranks (e.g., QB1, WR3) from an ordered list
+export const getPositionRanks = (orderedProspects) => {
+  const counters = {};
+  const ranks = {};
+  orderedProspects.forEach(p => {
+    counters[p.position] = (counters[p.position] || 0) + 1;
+    ranks[p.id] = `${p.position}${counters[p.position]}`;
+  });
+  return ranks;
+};
+
 // Get position display name (maps technical positions to readable names)
 export const positionDisplayNames = {
   'QB': 'Quarterback',

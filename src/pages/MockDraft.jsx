@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { prospects, positions } from '../data/prospects';
 import { draftOrder as baseDraftOrder, teamColors, roundInfo, allTeams } from '../data/draftOrder';
+import PlayerModal from '../components/PlayerModal';
 import './MockDraft.css';
 
 function MockDraft({ myBoard }) {
@@ -20,6 +21,8 @@ function MockDraft({ myBoard }) {
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [tradeUserPick, setTradeUserPick] = useState(null);
   const [tradeTargetPick, setTradeTargetPick] = useState(null);
+  const [modalPlayer, setModalPlayer] = useState(null);
+  const [modalPlayerIndex, setModalPlayerIndex] = useState(null);
   const currentPickRef = useRef(null);
   const simulationRef = useRef(null);
 
@@ -530,9 +533,13 @@ function MockDraft({ myBoard }) {
                             <span className="available-count">{filteredPlayers.length}</span>
                           </div>
                           <div className="player-list-draft">
-                            {filteredPlayers.slice(0, 50).map((player) => (
+                            {filteredPlayers.slice(0, 50).map((player, index) => (
                               <div key={player.id} className="draft-player-row">
-                                <Link to={`/player/${player.id}`} className="draft-player-link">
+                                <button
+                                  type="button"
+                                  className="draft-player-link"
+                                  onClick={() => { setModalPlayer(player); setModalPlayerIndex(index); }}
+                                >
                                   <span className="player-rank">{player.id}</span>
                                   <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
                                     {player.position}
@@ -541,7 +548,7 @@ function MockDraft({ myBoard }) {
                                     <span className="player-name">{player.name}</span>
                                     <span className="player-college">{player.college}</span>
                                   </div>
-                                </Link>
+                                </button>
                                 <button
                                   className="btn btn-primary btn-small"
                                   onClick={() => makePick(player)}
@@ -655,6 +662,20 @@ function MockDraft({ myBoard }) {
             </div>
           </>
         )}
+
+        <PlayerModal
+          player={modalPlayer}
+          isOpen={modalPlayer !== null}
+          onClose={() => { setModalPlayer(null); setModalPlayerIndex(null); }}
+          onPrev={modalPlayerIndex > 0 ? () => {
+            const prev = filteredPlayers[modalPlayerIndex - 1];
+            if (prev) { setModalPlayer(prev); setModalPlayerIndex(modalPlayerIndex - 1); }
+          } : null}
+          onNext={modalPlayerIndex !== null && modalPlayerIndex < Math.min(filteredPlayers.length, 50) - 1 ? () => {
+            const next = filteredPlayers[modalPlayerIndex + 1];
+            if (next) { setModalPlayer(next); setModalPlayerIndex(modalPlayerIndex + 1); }
+          } : null}
+        />
 
         {/* Trade Modal */}
         {showTradeModal && (

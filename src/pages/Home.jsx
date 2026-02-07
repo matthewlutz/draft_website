@@ -1,12 +1,19 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import PlayerCard from '../components/PlayerCard';
-import { prospects } from '../data/prospects';
+import PlayerModal from '../components/PlayerModal';
+import { prospects, getPositionRanks } from '../data/prospects';
 import './Home.css';
 
 function Home({ myBoard, onToggleBoard }) {
+  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(null);
+
   // Get top 8 prospects for featured section
   const topProspects = prospects.slice(0, 8);
+
+  // Position ranks for the top prospects
+  const positionRanks = useMemo(() => getPositionRanks(prospects), []);
 
   // Get position breakdown
   const positionCounts = prospects.reduce((acc, player) => {
@@ -15,6 +22,19 @@ function Home({ myBoard, onToggleBoard }) {
   }, {});
 
   const isOnBoard = (playerId) => myBoard.some((p) => p.id === playerId);
+
+  // Modal handlers
+  const selectedPlayer = selectedPlayerIndex !== null ? topProspects[selectedPlayerIndex] : null;
+
+  const closeModal = () => setSelectedPlayerIndex(null);
+
+  const goToPrev = selectedPlayerIndex > 0
+    ? () => setSelectedPlayerIndex(selectedPlayerIndex - 1)
+    : null;
+
+  const goToNext = selectedPlayerIndex !== null && selectedPlayerIndex < topProspects.length - 1
+    ? () => setSelectedPlayerIndex(selectedPlayerIndex + 1)
+    : null;
 
   return (
     <div className="home-page">
@@ -89,6 +109,8 @@ function Home({ myBoard, onToggleBoard }) {
                 rank={index + 1}
                 onAddToBoard={onToggleBoard}
                 isOnBoard={isOnBoard(player.id)}
+                positionRank={positionRanks[player.id]}
+                onClick={() => setSelectedPlayerIndex(index)}
               />
             ))}
           </div>
@@ -118,6 +140,17 @@ function Home({ myBoard, onToggleBoard }) {
           </div>
         </div>
       </section>
+
+      <PlayerModal
+        player={selectedPlayer}
+        isOpen={selectedPlayerIndex !== null}
+        onClose={closeModal}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        onToggleBoard={onToggleBoard}
+        isOnBoard={selectedPlayer ? isOnBoard(selectedPlayer.id) : false}
+        positionRank={selectedPlayer ? positionRanks[selectedPlayer.id] : null}
+      />
     </div>
   );
 }

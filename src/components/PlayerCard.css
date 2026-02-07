@@ -1,10 +1,16 @@
-/* Horizontal Player Card - PFF Style */
+/* Horizontal Player Card - Row Style */
 .player-card {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
-.player-card-link {
+.player-card:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+.player-card-inner {
   flex: 1;
   display: flex;
   align-items: center;
@@ -100,6 +106,12 @@
   gap: 2px;
 }
 
+.player-pos-rank {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
 .player-notes {
   font-size: 0.65rem;
   color: var(--text-muted);
@@ -120,31 +132,60 @@
   color: var(--text-secondary);
 }
 
-/* Class */
-.player-class {
-  width: 80px;
-  flex-shrink: 0;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-/* Round */
-.player-round {
-  width: 60px;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-}
-
-/* Actions */
+/* Actions - Add/Remove Button */
 .player-card-actions {
   padding: var(--spacing-md);
   flex-shrink: 0;
 }
 
-.player-card-actions .btn {
-  white-space: nowrap;
+.card-add-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+  background: #ffb612;
+  color: #000;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.card-add-btn:hover {
+  transform: scale(1.1);
+}
+
+.card-add-btn:active {
+  animation: addBtnPulse 200ms ease;
+}
+
+.card-add-btn.on-board {
+  background: #22c55e;
+  color: #fff;
+}
+
+.card-add-btn.on-board:hover {
+  background: #ef4444;
+}
+
+.card-add-btn.on-board:hover .card-add-icon {
+  display: none;
+}
+
+.card-add-btn.on-board:hover::after {
+  content: '\2212';
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+@keyframes addBtnPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* Player List Container */
@@ -154,34 +195,9 @@
   gap: var(--spacing-sm);
 }
 
-/* Header row styling */
-.player-list-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.player-list-header .header-rank { width: 48px; text-align: center; }
-.player-list-header .header-logo { width: 48px; text-align: center; }
-.player-list-header .header-name { flex: 1; min-width: 150px; }
-.player-list-header .header-pos { width: 100px; text-align: center; }
-.player-list-header .header-physical { width: 80px; text-align: center; }
-.player-list-header .header-class { width: 80px; text-align: center; }
-.player-list-header .header-round { width: 60px; text-align: center; }
-.player-list-header .header-action { width: 80px; }
-
 /* Mobile Responsive */
 @media (max-width: 900px) {
-  .player-card-link {
+  .player-card-inner {
     flex-wrap: wrap;
     padding: var(--spacing-md);
   }
@@ -205,18 +221,13 @@
     min-width: 120px;
   }
 
-  .player-physical,
-  .player-class {
-    display: none;
-  }
-
-  .player-list-header {
+  .player-physical {
     display: none;
   }
 }
 
 @media (max-width: 600px) {
-  .player-card-link {
+  .player-card-inner {
     gap: var(--spacing-sm);
   }
 
@@ -246,11 +257,4 @@
   .player-college {
     font-size: 0.75rem;
   }
-}
-
-/* Grid layout - deprecated but kept for reference */
-.player-grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
 }

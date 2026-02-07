@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  getDoc,
-} from 'firebase/firestore';
-import { db } from '../firebase';
+import { supabase } from '../supabase';
 import { getProspectById } from '../data/prospects';
 import './SharedBoard.css';
 
@@ -22,24 +14,30 @@ function SharedBoard() {
   useEffect(() => {
     async function fetchBoard() {
       try {
-        const q = query(
-          collection(db, 'boards'),
-          where('shareSlug', '==', slug),
-          where('isPublic', '==', true)
-        );
-        const snap = await getDocs(q);
-        if (snap.empty) {
+        // Fetch board by share slug
+        const { data: boardData, error: boardError } = await supabase
+          .from('boards')
+          .select('*')
+          .eq('share_slug', slug)
+          .eq('is_public', true)
+          .single();
+
+        if (boardError || !boardData) {
           setError('Board not found');
           setLoading(false);
           return;
         }
-        const boardData = snap.docs[0].data();
         setBoard(boardData);
 
         // Fetch owner display name
-        const userSnap = await getDoc(doc(db, 'users', boardData.userId));
-        if (userSnap.exists()) {
-          setOwnerName(userSnap.data().displayName || 'Anonymous');
+        const { data: userData } = await supabase
+          .from('users')
+          .select('display_name')
+          .eq('id', boardData.user_id)
+          .single();
+
+        if (userData) {
+          setOwnerName(userData.display_name || 'Anonymous');
         }
       } catch (err) {
         console.error('Failed to load shared board:', err);
@@ -76,7 +74,7 @@ function SharedBoard() {
     );
   }
 
-  const players = (board.prospectIds || [])
+  const players = (board.prospect_ids || [])
     .map((id) => getProspectById(id))
     .filter(Boolean);
 

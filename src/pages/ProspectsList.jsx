@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { prospects } from '../data/prospects';
+import { prospects, getPositionRanks } from '../data/prospects';
 import { customBigBoardRankings, customBoardName } from '../data/customBigBoard';
 import PlayerCard from '../components/PlayerCard';
+import PlayerModal from '../components/PlayerModal';
 import SearchFilter from '../components/SearchFilter';
 import './ProspectsList.css';
 
@@ -15,6 +16,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
   const [boardType, setBoardType] = useState('custom'); // 'custom' or 'consensus'
+  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(null);
 
   // Check if custom board has rankings
   const hasCustomBoard = customBigBoardRankings.length > 0;
@@ -22,11 +24,9 @@ function ProspectsList({ myBoard, onToggleBoard }) {
   // Get prospects in the selected board order
   const orderedProspects = useMemo(() => {
     if (boardType === 'custom' && hasCustomBoard) {
-      // Create ordered list based on custom rankings
       const ranked = [];
       const rankedIds = new Set();
 
-      // First, add players in custom order
       customBigBoardRankings.forEach((id, index) => {
         const player = prospects.find(p => p.id === id);
         if (player) {
@@ -35,7 +35,6 @@ function ProspectsList({ myBoard, onToggleBoard }) {
         }
       });
 
-      // Then add unranked players in consensus order
       prospects.forEach(player => {
         if (!rankedIds.has(player.id)) {
           ranked.push({ ...player, customRank: ranked.length + 1 });
@@ -47,9 +46,11 @@ function ProspectsList({ myBoard, onToggleBoard }) {
     return prospects.map(p => ({ ...p, customRank: p.id }));
   }, [boardType, hasCustomBoard]);
 
+  // Position ranks based on board order
+  const positionRanks = useMemo(() => getPositionRanks(orderedProspects), [orderedProspects]);
+
   const filteredProspects = useMemo(() => {
     return orderedProspects.filter((player) => {
-      // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
         const matchesName = player.name.toLowerCase().includes(searchLower);
@@ -57,17 +58,14 @@ function ProspectsList({ myBoard, onToggleBoard }) {
         if (!matchesName && !matchesCollege) return false;
       }
 
-      // Position filter
       if (filters.position && player.position !== filters.position) {
         return false;
       }
 
-      // College filter
       if (filters.college && player.college !== filters.college) {
         return false;
       }
 
-      // Round filter
       if (filters.round) {
         if (filters.round === 'UDFA') {
           if (player.projectedRound !== 'UDFA') return false;
@@ -101,11 +99,29 @@ function ProspectsList({ myBoard, onToggleBoard }) {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    // Scroll to top of list
     window.scrollTo({ top: 300, behavior: 'smooth' });
   };
 
   const isOnBoard = (playerId) => myBoard.some((p) => p.id === playerId);
+
+  // Modal handlers
+  const selectedPlayer = selectedPlayerIndex !== null ? filteredProspects[selectedPlayerIndex] : null;
+
+  const openModal = (indexInFiltered) => {
+    setSelectedPlayerIndex(indexInFiltered);
+  };
+
+  const closeModal = () => {
+    setSelectedPlayerIndex(null);
+  };
+
+  const goToPrev = selectedPlayerIndex > 0
+    ? () => setSelectedPlayerIndex(selectedPlayerIndex - 1)
+    : null;
+
+  const goToNext = selectedPlayerIndex !== null && selectedPlayerIndex < filteredProspects.length - 1
+    ? () => setSelectedPlayerIndex(selectedPlayerIndex + 1)
+    : null;
 
   // Generate page numbers to display
   const getPageNumbers = () => {
@@ -185,15 +201,20 @@ function ProspectsList({ myBoard, onToggleBoard }) {
         {paginatedProspects.length > 0 ? (
           <>
             <div className="player-list">
-              {paginatedProspects.map((player) => (
-                <PlayerCard
-                  key={player.id}
-                  player={player}
-                  rank={boardType === 'custom' ? player.customRank : player.id}
-                  onAddToBoard={onToggleBoard}
-                  isOnBoard={isOnBoard(player.id)}
-                />
-              ))}
+              {paginatedProspects.map((player, index) => {
+                const globalIndex = startIndex + index;
+                return (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    rank={boardType === 'custom' ? player.customRank : player.id}
+                    onAddToBoard={onToggleBoard}
+                    isOnBoard={isOnBoard(player.id)}
+                    positionRank={positionRanks[player.id]}
+                    onClick={() => openModal(globalIndex)}
+                  />
+                );
+              })}
             </div>
 
             {/* Pagination Controls */}
@@ -243,6 +264,17 @@ function ProspectsList({ myBoard, onToggleBoard }) {
             <p>Try adjusting your search or filter criteria</p>
           </div>
         )}
+
+        <PlayerModal
+          player={selectedPlayer}
+          isOpen={selectedPlayerIndex !== null}
+          onClose={closeModal}
+          onPrev={goToPrev}
+          onNext={goToNext}
+          onToggleBoard={onToggleBoard}
+          isOnBoard={selectedPlayer ? isOnBoard(selectedPlayer.id) : false}
+          positionRank={selectedPlayer ? positionRanks[selectedPlayer.id] : null}
+        />
       </div>
     </div>
   );

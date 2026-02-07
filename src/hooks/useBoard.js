@@ -1,15 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  updateDoc,
-  doc,
-  serverTimestamp,
-} from 'firebase/firestore';
-import { db } from '../firebase';
+import { supabase } from '../supabase';
 import { useAuth } from '../context/AuthContext';
 import { getProspectById } from '../data/prospects';
 
@@ -49,7 +39,7 @@ export function useBoard() {
   const [isPublic, setIsPublic] = useState(false);
   const [shareSlug, setShareSlug] = useState(null);
   const [syncStatus, setSyncStatus] = useState('idle');
-  const [firestoreDocId, setFirestoreDocId] = useState(null);
+  const [boardId, setBoardId] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
   const debounceTimer = useRef(null);
@@ -59,44 +49,50 @@ export function useBoard() {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadFirestoreBoard(uid) {
+    async function loadSupabaseBoard(userId) {
       try {
-        const q = query(
-          collection(db, 'boards'),
-          where('userId', '==', uid)
-        );
-        const snap = await getDocs(q);
+        const { data, error } = await supabase
+          .from('boards')
+          .select('*')
+          .eq('user_id', userId)
+          .limit(1)
+          .single();
+
         if (cancelled) return;
-        if (!snap.empty) {
-          const boardDoc = snap.docs[0];
-          const data = boardDoc.data();
-          setFirestoreDocId(boardDoc.id);
-          setProspectIds(data.prospectIds || []);
+
+        if (error && error.code !== 'PGRST116') {
+          // PGRST116 = no rows found, which is fine for new users
+          console.error('Failed to load board from Supabase:', error);
+        }
+
+        if (data) {
+          setBoardId(data.id);
+          setProspectIds(data.prospect_ids || []);
           setBoardNameState(data.name || 'My Big Board');
-          setIsPublic(data.isPublic || false);
-          setShareSlug(data.shareSlug || null);
+          setIsPublic(data.is_public || false);
+          setShareSlug(data.share_slug || null);
         } else {
           // New user, no board yet — start empty
           setProspectIds([]);
           setBoardNameState('My Big Board');
           setIsPublic(false);
           setShareSlug(null);
-          setFirestoreDocId(null);
+          setBoardId(null);
         }
       } catch (err) {
-        console.error('Failed to load board from Firestore:', err);
+        console.error('Failed to load board from Supabase:', err);
       }
       if (!cancelled) setLoaded(true);
     }
 
     if (user) {
-      // Authenticated: load from Firestore
+      // Authenticated: load from Supabase
       setLoaded(false);
-      loadFirestoreBoard(user.uid);
+      loadSupabaseBoard(user.id);
     } else {
       // Guest: load from localStorage
       setProspectIds(readLocalBoard());
-      setFirestoreDocId(null);
+      setBoardId(null);
       setBoardNameState('My Big Board');
       setIsPublic(false);
       setShareSlug(null);
@@ -110,31 +106,42 @@ export function useBoard() {
     };
   }, [user]);
 
-  // --- Debounced Firestore save ---
-  const saveToFirestore = useCallback(
+  // --- Debounced Supabase save ---
+  const saveToSupabase = useCallback(
     async (ids, name, pub, slug) => {
       if (!user) return;
       setSyncStatus('saving');
       try {
-        if (firestoreDocId) {
-          await updateDoc(doc(db, 'boards', firestoreDocId), {
-            prospectIds: ids,
-            name,
-            isPublic: pub,
-            shareSlug: slug,
-            updatedAt: serverTimestamp(),
-          });
+        if (boardId) {
+          // Update existing board
+          const { error } = await supabase
+            .from('boards')
+            .update({
+              prospect_ids: ids,
+              name,
+              is_public: pub,
+              share_slug: slug,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', boardId);
+
+          if (error) throw error;
         } else {
-          const docRef = await addDoc(collection(db, 'boards'), {
-            userId: user.uid,
-            prospectIds: ids,
-            name,
-            isPublic: pub,
-            shareSlug: slug,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          });
-          setFirestoreDocId(docRef.id);
+          // Create new board
+          const { data, error } = await supabase
+            .from('boards')
+            .insert({
+              user_id: user.id,
+              prospect_ids: ids,
+              name,
+              is_public: pub,
+              share_slug: slug,
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          setBoardId(data.id);
         }
         setSyncStatus('saved');
         setTimeout(() => setSyncStatus('idle'), 3000);
@@ -143,7 +150,7 @@ export function useBoard() {
         setSyncStatus('error');
       }
     },
-    [user, firestoreDocId]
+    [user, boardId]
   );
 
   const scheduleSave = useCallback(
@@ -151,10 +158,10 @@ export function useBoard() {
       if (!user) return;
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
-        saveToFirestore(ids, name, pub, slug);
+        saveToSupabase(ids, name, pub, slug);
       }, 2000);
     },
-    [user, saveToFirestore]
+    [user, saveToSupabase]
   );
 
   // --- Guest localStorage sync ---
@@ -213,9 +220,9 @@ export function useBoard() {
     if (localIds.length === 0 || !user) return;
     setProspectIds(localIds);
     // Save immediately (not debounced)
-    await saveToFirestore(localIds, boardName, isPublic, shareSlug);
+    await saveToSupabase(localIds, boardName, isPublic, shareSlug);
     localStorage.removeItem(LOCAL_KEY);
-  }, [user, boardName, isPublic, shareSlug, saveToFirestore]);
+  }, [user, boardName, isPublic, shareSlug, saveToSupabase]);
 
   const hasLocalBoard = readLocalBoard().length > 0;
 

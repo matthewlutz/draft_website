@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getPositionRanks } from '../data/prospects';
 import SyncStatus from '../components/SyncStatus';
+import PlayerModal from '../components/PlayerModal';
 import './MyBoard.css';
 
 function MyBoard({
@@ -19,6 +21,9 @@ function MyBoard({
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(null);
+
+  const positionRanks = useMemo(() => getPositionRanks(myBoard), [myBoard]);
 
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
@@ -198,20 +203,27 @@ function MyBoard({
                     </svg>
                   </div>
 
-                  <Link to={`/player/${player.id}`} className="board-item-content">
+                  <button
+                    type="button"
+                    className="board-item-content"
+                    onClick={() => setSelectedPlayerIndex(index)}
+                  >
                     <div className="board-item-info">
                       <span className={`position-badge ${positionClass(player.position)}`}>
                         {player.position}
                       </span>
                       <h3 className="board-item-name">{player.name}</h3>
                       <span className="board-item-college">{player.college}</span>
+                      {positionRanks[player.id] && (
+                        <span className="board-item-pos-rank">{positionRanks[player.id]}</span>
+                      )}
                     </div>
                     <div className="board-item-meta">
                       <span className={`round-badge round-${player.projectedRound}`}>
                         Rd {player.projectedRound}
                       </span>
                     </div>
-                  </Link>
+                  </button>
 
                   <div className="board-item-actions">
                     <button
@@ -250,6 +262,17 @@ function MyBoard({
             </div>
           </>
         )}
+
+        <PlayerModal
+          player={selectedPlayerIndex !== null ? myBoard[selectedPlayerIndex] : null}
+          isOpen={selectedPlayerIndex !== null}
+          onClose={() => setSelectedPlayerIndex(null)}
+          onPrev={selectedPlayerIndex > 0 ? () => setSelectedPlayerIndex(selectedPlayerIndex - 1) : null}
+          onNext={selectedPlayerIndex !== null && selectedPlayerIndex < myBoard.length - 1 ? () => setSelectedPlayerIndex(selectedPlayerIndex + 1) : null}
+          onToggleBoard={onToggleBoard}
+          isOnBoard={true}
+          positionRank={selectedPlayerIndex !== null && myBoard[selectedPlayerIndex] ? positionRanks[myBoard[selectedPlayerIndex].id] : null}
+        />
       </div>
     </div>
   );

@@ -923,6 +923,12 @@
   color: inherit;
   text-decoration: none;
   min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .draft-player-link:hover {

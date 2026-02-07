@@ -1,14 +1,19 @@
-import { Link } from 'react-router-dom';
 import { getCollegeLogo } from '../data/collegeLogos';
 import './PlayerCard.css';
 
-function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = false }) {
+function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = false, positionRank, onClick }) {
   const positionClass = player.position.toLowerCase().replace('/', '-');
   const collegeLogo = getCollegeLogo(player.college);
 
   return (
-    <div className="player-card card">
-      <Link to={`/player/${player.id}`} className="player-card-link">
+    <div
+      className="player-card card"
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+    >
+      <div className="player-card-inner">
         {showRank && (
           <div className="player-rank">
             <span className="rank-number">{rank}</span>
@@ -38,6 +43,9 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
           <span className={`position-badge ${positionClass}`}>
             {player.position}
           </span>
+          {positionRank && (
+            <span className="player-pos-rank">{positionRank}</span>
+          )}
           {player.notes && (
             <span className="player-notes">{player.notes}</span>
           )}
@@ -47,18 +55,20 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
           <span className="physical-item">{player.height}</span>
           <span className="physical-item">{player.weight} lbs</span>
         </div>
-      </Link>
+      </div>
 
       {onAddToBoard && (
         <div className="player-card-actions">
           <button
-            className={`btn btn-small ${isOnBoard ? 'btn-accent' : 'btn-primary'}`}
+            className={`card-add-btn ${isOnBoard ? 'on-board' : ''}`}
             onClick={(e) => {
-              e.preventDefault();
+              e.stopPropagation();
               onAddToBoard(player);
             }}
+            title={isOnBoard ? 'Remove from board' : 'Add to board'}
+            aria-label={isOnBoard ? 'Remove from board' : 'Add to board'}
           >
-            {isOnBoard ? 'Remove' : 'Add'}
+            <span className="card-add-icon">{isOnBoard ? '\u2713' : '+'}</span>
           </button>
         </div>
       )}
