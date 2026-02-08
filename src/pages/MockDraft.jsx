@@ -412,17 +412,6 @@ function MockDraft({ myBoard }) {
   return (
     <div className="mock-draft-page">
       <div className="container">
-        <div className="page-header">
-          <h1>Mock Draft Simulator</h1>
-          <p className="page-subtitle">
-            {myBoard && myBoard.length > 0 ? (
-              <span className="board-indicator">Custom Board ({myBoard.length})</span>
-            ) : (
-              <span className="board-indicator">Consensus Board</span>
-            )}
-          </p>
-        </div>
-
         {/* Team Selection */}
         {showTeamSelect && (
           <div className="team-selection">
