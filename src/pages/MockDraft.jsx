@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { prospects, positions } from '../data/prospects';
 import { draftOrder as baseDraftOrder, teamColors, roundInfo, allTeams } from '../data/draftOrder';
+import { getNflLogo } from '../data/nflLogos';
 import PlayerModal from '../components/PlayerModal';
 import './MockDraft.css';
 
@@ -109,10 +110,6 @@ function MockDraft({ myBoard }) {
 
   const selectAllTeams = () => setUserTeams([...allTeams]);
   const clearAllTeams = () => setUserTeams([]);
-
-  const getPicksForRounds = (numRounds) => {
-    return draftOrder.filter(p => p.round <= numRounds).length;
-  };
 
   // Position value premiums by round tier
   const positionPremiums = useMemo(() => ({
@@ -441,11 +438,7 @@ function MockDraft({ myBoard }) {
                       checked={roundCount === num}
                       onChange={() => setRoundCount(num)}
                     />
-                    <span className="round-radio"></span>
-                    <span className="round-label">
-                      <span className="round-num">{num} Round{num !== 1 ? 's' : ''}</span>
-                      <span className="round-picks">{getPicksForRounds(num)} picks</span>
-                    </span>
+                    <span className="round-num">{num}</span>
                   </label>
                 ))}
               </div>
@@ -507,7 +500,7 @@ function MockDraft({ myBoard }) {
               </div>
 
               <div className="team-grid">
-                {teamsWithPicks.map(({ team, abbrev, firstPick }) => (
+                {teamsWithPicks.map(({ abbrev, firstPick }) => (
                   <button
                     key={abbrev}
                     className={`team-btn ${userTeams.includes(abbrev) ? 'selected' : ''}`}
@@ -519,7 +512,11 @@ function MockDraft({ myBoard }) {
                   >
                     <span className="team-pick">#{firstPick}</span>
                     <span className="team-abbrev">{abbrev}</span>
-                    <span className="team-name">{team}</span>
+                    <img
+                      src={getNflLogo(abbrev)}
+                      alt={abbrev}
+                      className="team-logo"
+                    />
                   </button>
                 ))}
               </div>
