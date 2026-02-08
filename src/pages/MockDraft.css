@@ -6,6 +6,9 @@
 .page-header {
   margin-bottom: var(--spacing-xl);
   text-align: center;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .page-header h1 {
@@ -270,6 +273,8 @@
 
 .cpu-setting {
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .cpu-setting h3 {
@@ -287,6 +292,7 @@
 
 .slider-container {
   max-width: 100%;
+  margin-top: auto;
 }
 
 .setting-slider {
