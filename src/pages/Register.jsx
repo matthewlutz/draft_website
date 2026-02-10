@@ -19,7 +19,7 @@ function mapFirebaseError(code) {
 }
 
 function Register({ hasLocalBoard, onMigrate }) {
-  const { user, register, loginWithGoogle } = useAuth();
+  const { user, register, loginWithGoogle, updateDisplayName } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -28,6 +28,8 @@ function Register({ hasLocalBoard, onMigrate }) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showMigration, setShowMigration] = useState(false);
+  const [showDisplayNameSetup, setShowDisplayNameSetup] = useState(false);
+  const [googleDisplayName, setGoogleDisplayName] = useState('');
 
   // Count local board players for migration modal
   const localCount = (() => {
@@ -42,15 +44,22 @@ function Register({ hasLocalBoard, onMigrate }) {
   })();
 
   useEffect(() => {
-    // If user was already logged in before visiting this page, redirect
-    if (user && !showMigration) {
-      if (hasLocalBoard && localCount > 0) {
+    // If user was already logged in before visiting this page, check display name
+    if (user && !showMigration && !showDisplayNameSetup) {
+      const hasDisplayName = user.user_metadata?.display_name;
+      if (!hasDisplayName) {
+        // User needs to set a display name (likely from Google OAuth)
+        setShowDisplayNameSetup(true);
+        // Pre-fill with Google name if available
+        const googleName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+        setGoogleDisplayName(googleName);
+      } else if (hasLocalBoard && localCount > 0) {
         setShowMigration(true);
       } else {
         navigate('/my-board', { replace: true });
       }
     }
-  }, [user, navigate, hasLocalBoard, localCount, showMigration]);
+  }, [user, navigate, hasLocalBoard, localCount, showMigration, showDisplayNameSetup]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,6 +112,62 @@ function Register({ hasLocalBoard, onMigrate }) {
     localStorage.removeItem('nfl-draft-my-board');
     navigate('/my-board');
   };
+
+  const handleDisplayNameSubmit = async (e) => {
+    e.preventDefault();
+    if (!googleDisplayName.trim()) {
+      setError('Please enter a display name.');
+      return;
+    }
+    setError('');
+    setSubmitting(true);
+    try {
+      await updateDisplayName(googleDisplayName.trim());
+      setShowDisplayNameSetup(false);
+      // Now check for migration
+      if (hasLocalBoard && localCount > 0) {
+        setShowMigration(true);
+      } else {
+        navigate('/my-board');
+      }
+    } catch (err) {
+      setError('Failed to save display name. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (showDisplayNameSetup) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <h1>Welcome!</h1>
+          <p className="auth-subtitle">Choose a display name for your board</p>
+
+          {error && <div className="auth-error">{error}</div>}
+
+          <form onSubmit={handleDisplayNameSubmit}>
+            <div className="form-group">
+              <label htmlFor="googleDisplayName">Display Name</label>
+              <input
+                id="googleDisplayName"
+                type="text"
+                value={googleDisplayName}
+                onChange={(e) => setGoogleDisplayName(e.target.value)}
+                placeholder="Your name"
+                required
+                autoFocus
+              />
+              <p className="form-hint">This will appear as "{googleDisplayName || 'Your Name'}'s Big Board"</p>
+            </div>
+            <button type="submit" className="btn btn-primary auth-submit" disabled={submitting}>
+              {submitting ? 'Saving...' : 'Continue'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   if (showMigration) {
     return (

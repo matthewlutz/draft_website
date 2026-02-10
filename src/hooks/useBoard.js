@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '../supabase';
+import { supabaseRest, isSupabaseConfigured } from '../supabase';
 import { useAuth } from '../context/AuthContext';
 import { getProspectById } from '../data/prospects';
 
@@ -51,32 +51,40 @@ export function useBoard() {
 
     async function loadSupabaseBoard(userId) {
       try {
-        const { data, error } = await supabase
-          .from('boards')
-          .select('*')
-          .eq('user_id', userId)
-          .limit(1)
-          .single();
+        const { data, error } = await supabaseRest('boards', 'GET', {
+          eq: { user_id: userId },
+          select: true,
+        });
 
         if (cancelled) return;
 
-        if (error && error.code !== 'PGRST116') {
-          // PGRST116 = no rows found, which is fine for new users
+        if (error) {
           console.error('Failed to load board from Supabase:', error);
         }
 
-        if (data) {
-          setBoardId(data.id);
-          setProspectIds(data.prospect_ids || []);
-          setBoardNameState(data.name || 'My Big Board');
-          setIsPublic(data.is_public || false);
-          setShareSlug(data.share_slug || null);
+        const board = data && data.length > 0 ? data[0] : null;
+
+        if (board) {
+          setBoardId(board.id);
+          setProspectIds(board.prospect_ids || []);
+          setBoardNameState(board.name || 'My Big Board');
+          setIsPublic(board.is_public || false);
+          // Always ensure a shareSlug exists
+          const slug = board.share_slug || generateSlug();
+          setShareSlug(slug);
+          // If no slug existed, save one
+          if (!board.share_slug) {
+            supabaseRest('boards', 'PATCH', {
+              data: { share_slug: slug, is_public: true },
+              eq: { id: board.id },
+            });
+          }
         } else {
-          // New user, no board yet — start empty
+          // New user, no board yet — start empty, but prepare a slug
           setProspectIds([]);
           setBoardNameState('My Big Board');
-          setIsPublic(false);
-          setShareSlug(null);
+          setIsPublic(true);
+          setShareSlug(generateSlug());
           setBoardId(null);
         }
       } catch (err) {
@@ -85,7 +93,7 @@ export function useBoard() {
       if (!cancelled) setLoaded(true);
     }
 
-    if (user) {
+    if (user && isSupabaseConfigured) {
       // Authenticated: load from Supabase
       setLoaded(false);
       loadSupabaseBoard(user.id);
@@ -109,45 +117,50 @@ export function useBoard() {
   // --- Debounced Supabase save ---
   const saveToSupabase = useCallback(
     async (ids, name, pub, slug) => {
-      if (!user) return;
+      if (!user || !isSupabaseConfigured) {
+        setSyncStatus('idle');
+        return;
+      }
       setSyncStatus('saving');
       try {
         if (boardId) {
           // Update existing board
-          const { error } = await supabase
-            .from('boards')
-            .update({
+          const { error } = await supabaseRest('boards', 'PATCH', {
+            data: {
               prospect_ids: ids,
               name,
               is_public: pub,
               share_slug: slug,
               updated_at: new Date().toISOString(),
-            })
-            .eq('id', boardId);
+            },
+            eq: { id: boardId },
+          });
 
           if (error) throw error;
         } else {
           // Create new board
-          const { data, error } = await supabase
-            .from('boards')
-            .insert({
+          const { data, error } = await supabaseRest('boards', 'POST', {
+            data: {
               user_id: user.id,
               prospect_ids: ids,
               name,
               is_public: pub,
               share_slug: slug,
-            })
-            .select()
-            .single();
+            },
+            select: true,
+          });
 
           if (error) throw error;
-          setBoardId(data.id);
+          if (data && data.length > 0) {
+            setBoardId(data[0].id);
+          }
         }
         setSyncStatus('saved');
         setTimeout(() => setSyncStatus('idle'), 3000);
       } catch (err) {
         console.error('Failed to save board:', err);
         setSyncStatus('error');
+        setTimeout(() => setSyncStatus('idle'), 5000);
       }
     },
     [user, boardId]
@@ -155,7 +168,8 @@ export function useBoard() {
 
   const scheduleSave = useCallback(
     (ids, name, pub, slug) => {
-      if (!user) return;
+      if (!user || !isSupabaseConfigured) return;
+      setSyncStatus('saving'); // Show saving immediately
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
         saveToSupabase(ids, name, pub, slug);

@@ -106,7 +106,7 @@ function App() {
         <footer className="footer">
           <div className="container footer-content">
             <p>
-              NFL Draft Guide 2026
+              2026 NFL Draft Guide
             </p>
           </div>
         </footer>

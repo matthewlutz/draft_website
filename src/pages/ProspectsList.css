@@ -3,49 +3,150 @@
   min-height: 100vh;
 }
 
-.page-header {
-  margin-bottom: var(--spacing-xl);
+.prospects-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg) 0;
+  gap: var(--spacing-xs);
 }
 
-.page-header h1 {
-  margin-bottom: var(--spacing-sm);
+.prospects-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.page-subtitle {
+/* Twitter Controls Row */
+.twitter-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.twitter-follow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   color: var(--text-secondary);
-  font-size: 1.125rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  padding: 0 var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  height: 44px;
+}
+
+.twitter-follow:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+
+.twitter-follow .x-logo {
+  width: 16px;
+  height: 16px;
+}
+
+/* Board Controls Row */
+.board-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 /* Board Type Toggle */
 .board-toggle {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+  display: inline-flex;
+  justify-content: center;
+  gap: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .board-toggle-btn {
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: 0 var(--spacing-lg);
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: white;
-  font-size: 0.9rem;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  height: 44px;
 }
 
-.board-toggle-btn:hover {
-  border-color: var(--text-muted);
+.board-toggle-btn:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.board-toggle-btn:hover:not(.active) {
   color: var(--text-primary);
   background: var(--bg-card-hover);
 }
 
 .board-toggle-btn.active {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
+  background: var(--accent-gold);
   color: var(--bg-primary);
   font-weight: 600;
+}
+
+.reviewed-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: 0 var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  height: 44px;
+}
+
+.reviewed-filter-label:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+
+.reviewed-filter-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--text-primary);
+  cursor: pointer;
+}
+
+.reviewed-filter-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.reviewed-count {
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: var(--spacing-xs);
+}
+
+.reviewed-filter-link {
+  color: var(--accent-gold);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.reviewed-filter-link:hover {
+  color: var(--text-primary);
 }
 
 /* Results Header with Per Page Selector */
@@ -126,6 +227,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 44px;
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -145,8 +247,8 @@
 }
 
 .pagination-page {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,25 +280,133 @@
 }
 
 /* Mobile Adjustments */
-@media (max-width: 640px) {
+@media (max-width: 599px) {
+  .prospects-page {
+    padding: var(--spacing-sm) 0;
+  }
+
+  .prospects-header {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .prospects-title {
+    font-size: 1.25rem;
+  }
+
+  .board-controls {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .board-toggle {
+    width: 100%;
+  }
+
+  .board-toggle-btn {
+    flex: 1;
+    padding: 0 var(--spacing-sm);
+    font-size: 0.75rem;
+    height: 44px;
+  }
+
+  .twitter-controls {
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .reviewed-filter-label {
+    width: 100%;
+    justify-content: center;
+    padding: 0 var(--spacing-sm);
+    font-size: 0.75rem;
+    height: 44px;
+  }
+
+  .reviewed-filter-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .reviewed-filter-text {
+    font-size: 0.75rem;
+  }
+
+  .twitter-follow {
+    width: 100%;
+    justify-content: center;
+    padding: 0 var(--spacing-sm);
+    font-size: 0.75rem;
+    height: 44px;
+  }
+
   .results-header {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .results-text {
+    font-size: 0.75rem;
+  }
+
+  .per-page-selector {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .per-page-label {
+    margin-right: auto;
+    font-size: 0.75rem;
+  }
+
+  .per-page-btn {
+    min-width: 40px;
+    min-height: 36px;
+    font-size: 0.75rem;
+    padding: var(--spacing-xs);
   }
 
   .pagination {
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
   }
 
   .pagination-btn {
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: 0.8rem;
+    flex: 1;
+    min-width: 80px;
+    min-height: 36px;
+    font-size: 0.75rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .pagination-pages {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    order: -1;
+    gap: var(--spacing-xs);
   }
 
   .pagination-page {
-    width: 32px;
-    height: 32px;
-    font-size: 0.8rem;
+    width: 36px;
+    height: 36px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 600px) and (max-width: 767px) {
+  .prospects-title {
+    font-size: 2rem;
+  }
+
+  .board-toggle-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
   }
 }

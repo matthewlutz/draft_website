@@ -22,6 +22,7 @@
 
 /* Rank */
 .player-rank {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,55 +139,50 @@
   flex-shrink: 0;
 }
 
-.card-add-btn {
-  width: 36px;
-  height: 36px;
+/* Text-based add button */
+.card-add-btn-text {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  border: none;
+  width: 130px;
+  min-height: 44px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 150ms ease;
   background: var(--bg-card-hover);
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
-.card-add-btn:hover {
-  transform: scale(1.1);
+.card-add-btn-text:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
 }
 
-.card-add-btn:active {
-  animation: addBtnPulse 200ms ease;
+.card-add-btn-text:active {
+  transform: scale(0.98);
 }
 
-.card-add-btn.on-board {
+.card-add-btn-text.on-board {
   background: #22c55e;
   color: #fff;
+  border-color: #22c55e;
 }
 
-.card-add-btn.on-board:hover {
+.card-add-btn-text.on-board:hover {
   background: #ef4444;
-}
-
-.card-add-btn.on-board:hover .card-add-icon {
-  display: none;
-}
-
-.card-add-btn.on-board:hover::after {
-  content: '\2212';
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-@keyframes addBtnPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  border-color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Player List Container */
@@ -196,8 +192,20 @@
   gap: var(--spacing-sm);
 }
 
-/* Mobile Responsive */
-@media (max-width: 900px) {
+@media (max-width: 599px) {
+  .player-list {
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Tablet Responsive */
+@media (max-width: 1023px) {
+  .player-physical {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
   .player-card-inner {
     flex-wrap: wrap;
     padding: var(--spacing-md);
@@ -219,43 +227,93 @@
 
   .player-info {
     flex: 1;
-    min-width: 120px;
+    min-width: 100px;
   }
 
-  .player-physical {
-    display: none;
+  .player-position {
+    width: auto;
   }
 }
 
-@media (max-width: 600px) {
+/* Mobile */
+@media (max-width: 599px) {
+  .player-card {
+    flex-wrap: wrap;
+  }
+
   .player-card-inner {
-    gap: var(--spacing-sm);
+    flex: 1 1 100%;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 
   .player-rank {
-    width: 36px;
-    height: 36px;
-  }
-
-  .rank-number {
-    font-size: 0.875rem;
-  }
-
-  .player-logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .team-logo-placeholder {
     width: 32px;
     height: 32px;
   }
 
+  .rank-number {
+    font-size: 0.8rem;
+  }
+
+  .player-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .team-logo-placeholder {
+    width: 24px;
+    height: 24px;
+  }
+
+  .team-logo-placeholder svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .player-info {
+    min-width: 0;
+    flex: 1;
+  }
+
   .player-name {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .player-college {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .player-position {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .position-badge {
+    padding: 2px var(--spacing-xs);
+    font-size: 0.65rem;
+    min-width: 32px;
+  }
+
+  .player-pos-rank {
+    display: none;
+  }
+
+  .player-card-actions {
+    flex: 1 1 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    padding-top: 0;
+  }
+
+  .card-add-btn-text {
+    width: 100%;
+    min-height: 36px;
+    font-size: 0.7rem;
   }
 }

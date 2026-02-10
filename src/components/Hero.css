@@ -141,3 +141,47 @@
   color: var(--text-secondary);
   line-height: 1.5;
 }
+
+/* Mobile adjustments */
+@media (max-width: 599px) {
+  .hero {
+    padding: 80px 0 60px;
+  }
+
+  .hero-content {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hero-actions {
+    padding: 0 var(--spacing-md);
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .hero-benefits {
+    margin: 0 var(--spacing-md);
+  }
+
+  .hero-benefit {
+    padding: var(--spacing-md);
+  }
+
+  .hero-benefit-title {
+    font-size: 0.8rem;
+  }
+
+  .hero-benefit-desc {
+    font-size: 0.7rem;
+  }
+}

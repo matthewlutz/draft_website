@@ -84,8 +84,7 @@ function SharedBoard() {
     <div className="shared-board-page">
       <div className="container">
         <div className="shared-header">
-          <h1>{board.name || 'Big Board'}</h1>
-          <p className="shared-owner">by {ownerName}</p>
+          <h1>{ownerName ? `${ownerName}'s Big Board` : (board.name || 'Big Board')}</h1>
           <p className="shared-count">{players.length} player{players.length !== 1 ? 's' : ''}</p>
         </div>
 

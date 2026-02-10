@@ -8,14 +8,57 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        ensureUserProfile(session.user);
+    // Try to restore session from localStorage first (workaround for getSession() hanging)
+    const storedSession = localStorage.getItem('sb-nkqsuftmozkxnucqwyby-auth-token');
+    let restoredUser = null;
+
+    if (storedSession) {
+      try {
+        const parsed = JSON.parse(storedSession);
+        // Check if token is expired
+        const expiresAt = parsed?.expires_at;
+        const now = Math.floor(Date.now() / 1000);
+
+        if (parsed?.user && expiresAt && expiresAt > now) {
+          restoredUser = parsed.user;
+          setUser(restoredUser);
+          setLoading(false);
+          ensureUserProfile(restoredUser);
+        } else if (parsed?.user && expiresAt && expiresAt <= now) {
+          localStorage.removeItem('sb-nkqsuftmozkxnucqwyby-auth-token');
+        }
+      } catch (e) {
+        // Invalid stored session
       }
-      setLoading(false);
-    });
+    }
+
+    // If no valid stored session, try getSession with timeout
+    if (!restoredUser) {
+      let resolved = false;
+      const timeoutId = setTimeout(() => {
+        if (!resolved) {
+          setLoading(false);
+        }
+      }, 5000);
+
+      supabase.auth.getSession()
+        .then(({ data: { session } }) => {
+          resolved = true;
+          clearTimeout(timeoutId);
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            ensureUserProfile(session.user);
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          resolved = true;
+          clearTimeout(timeoutId);
+          setLoading(false);
+        });
+
+      return () => clearTimeout(timeoutId);
+    }
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -28,7 +71,9 @@ export function AuthProvider({ children }) {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function ensureUserProfile(user) {
@@ -82,6 +127,29 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  const updateDisplayName = async (displayName) => {
+    // Update user metadata
+    const { data, error } = await supabase.auth.updateUser({
+      data: { display_name: displayName }
+    });
+    if (error) throw error;
+
+    // Also update the users table
+    if (user) {
+      await supabase
+        .from('users')
+        .update({ display_name: displayName })
+        .eq('id', user.id);
+    }
+
+    // Update local user state
+    if (data.user) {
+      setUser(data.user);
+    }
+
+    return data.user;
+  };
+
   const value = {
     user,
     loading,
@@ -89,6 +157,7 @@ export function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     logout,
+    updateDisplayName,
   };
 
   return (

@@ -46,7 +46,7 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
           {positionRank && (
             <span className="player-pos-rank">{positionRank}</span>
           )}
-          {player.notes && (
+          {player.notes && !['DT', 'DL'].includes(player.position) && (
             <span className="player-notes">{player.notes}</span>
           )}
         </div>
@@ -60,7 +60,7 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
       {onAddToBoard && (
         <div className="player-card-actions">
           <button
-            className={`card-add-btn ${isOnBoard ? 'on-board' : ''}`}
+            className={`card-add-btn-text ${isOnBoard ? 'on-board' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               onAddToBoard(player);
@@ -68,7 +68,7 @@ function PlayerCard({ player, rank, showRank = true, onAddToBoard, isOnBoard = f
             title={isOnBoard ? 'Remove from board' : 'Add to board'}
             aria-label={isOnBoard ? 'Remove from board' : 'Add to board'}
           >
-            <span className="card-add-icon">{isOnBoard ? '\u2713' : '+'}</span>
+            {isOnBoard ? 'Remove' : 'Add to My Board'}
           </button>
         </div>
       )}

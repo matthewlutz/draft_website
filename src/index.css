@@ -41,6 +41,9 @@
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
+
+  /* Mobile */
+  --tap-target-min: 44px;
 }
 
 * {
@@ -51,6 +54,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -63,6 +67,7 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #root {
@@ -79,6 +84,18 @@ body {
   padding: 0 var(--spacing-md);
 }
 
+@media (max-width: 599px) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media (max-width: 374px) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
@@ -86,15 +103,27 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
+/* Mobile-first typography */
+h1 { font-size: 1.5rem; color: #ffffff; font-weight: 700; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1rem; }
+
+@media (min-width: 600px) {
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+}
 
 @media (min-width: 768px) {
+  h1 { font-size: 2.75rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.75rem; }
+}
+
+@media (min-width: 1024px) {
   h1 { font-size: 3.5rem; }
   h2 { font-size: 2.5rem; }
-  h3 { font-size: 1.75rem; }
 }
 
 /* Links */
@@ -114,7 +143,8 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  min-height: var(--tap-target-min);
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: var(--radius-md);
@@ -156,8 +186,23 @@ a:hover {
 }
 
 .btn-small {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-height: 36px;
   font-size: 0.75rem;
+}
+
+/* Mobile button sizing */
+@media (max-width: 599px) {
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+
+  .btn-small {
+    min-height: 32px;
+    font-size: 0.7rem;
+  }
 }
 
 /* Cards */
@@ -190,6 +235,14 @@ a:hover {
   border: 1px solid var(--border-color);
 }
 
+@media (max-width: 599px) {
+  .position-badge {
+    padding: 2px var(--spacing-xs);
+    font-size: 0.65rem;
+    min-width: 32px;
+  }
+}
+
 /* Round Badge */
 .round-badge {
   display: inline-flex;
@@ -218,12 +271,20 @@ a:hover {
   color: var(--text-secondary);
 }
 
+@media (max-width: 599px) {
+  .round-badge {
+    padding: 2px var(--spacing-xs);
+    font-size: 0.6rem;
+  }
+}
+
 /* Form elements */
 input, select {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: var(--spacing-sm) var(--spacing-md);
+  min-height: var(--tap-target-min);
   font-size: 0.875rem;
   color: var(--text-primary);
   transition: all var(--transition-fast);
@@ -237,6 +298,15 @@ input:focus, select:focus {
 
 input::placeholder {
   color: var(--text-muted);
+}
+
+/* Mobile form elements */
+@media (max-width: 599px) {
+  input, select {
+    min-height: 40px;
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
 }
 
 /* Scrollbar */
@@ -319,6 +389,20 @@ input::placeholder {
 .gap-2 { gap: var(--spacing-md); }
 .gap-3 { gap: var(--spacing-lg); }
 
+/* Text truncation utilities */
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.truncate-2-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Navigation */
 .nav {
   position: sticky;
@@ -329,12 +413,36 @@ input::placeholder {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* Fixed navbar on mobile for reliable sticky behavior */
+@media (max-width: 767px) {
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    backdrop-filter: none;
+    background: var(--bg-primary);
+  }
+
+  /* Add padding to body to compensate for fixed navbar */
+  body {
+    padding-top: 56px;
+  }
+}
+
 .nav-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) 0;
   gap: var(--spacing-lg);
+}
+
+@media (max-width: 599px) {
+  .nav-content {
+    padding: var(--spacing-sm) 0;
+    gap: var(--spacing-sm);
+  }
 }
 
 .nav-logo {
@@ -496,6 +604,8 @@ main {
 
 .auth-card h1 {
   font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
   margin-bottom: var(--spacing-xs);
 }
 

@@ -17,39 +17,56 @@ function Navbar() {
   return (
     <nav className="nav">
       <div className="container nav-content">
-        <Link to="/" className="nav-logo">
-          NFL <span>Draft</span> 2026
-        </Link>
-
         <button
           className="nav-toggle"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle navigation"
         >
-          {isOpen ? '✕' : '☰'}
+          <span className="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
         </button>
 
-        <div className={`nav-links ${isOpen ? 'open' : ''}`}>
-          <Link
-            to="/"
-            className={`nav-link ${isActive('/') && location.pathname === '/' ? 'active' : ''}`}
+        <Link to="/" className="nav-logo">
+          2026 NFL <span>Draft Guide</span>
+        </Link>
+
+        {/* Mobile overlay */}
+        {isOpen && (
+          <div
+            className="nav-overlay"
             onClick={() => setIsOpen(false)}
-          >
-            Home
-          </Link>
+            aria-hidden="true"
+          />
+        )}
+
+        <div className={`nav-links ${isOpen ? 'open' : ''}`}>
+          <div className="nav-drawer-header">
+            <span className="nav-drawer-title">Menu</span>
+            <button
+              className="nav-drawer-close"
+              onClick={() => setIsOpen(false)}
+              aria-label="Close menu"
+            >
+              ✕
+            </button>
+          </div>
+
           <Link
             to="/prospects"
             className={`nav-link ${isActive('/prospects') || isActive('/player') ? 'active' : ''}`}
             onClick={() => setIsOpen(false)}
           >
-            Big Board
+            Mr Lutz's Big Board
           </Link>
           <Link
             to="/my-board"
             className={`nav-link ${isActive('/my-board') ? 'active' : ''}`}
             onClick={() => setIsOpen(false)}
           >
-            My Board
+            Build Board
           </Link>
           <Link
             to="/mock-draft"

@@ -2,6 +2,9 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { getCollegeLogo } from '../data/collegeLogos';
+import { getPlayerNotes } from '../data/playerNotes';
+import { getCollegeColors } from '../data/collegeColors';
+import { getPlayerStats, formatStat } from '../services/espnStats';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabase';
 import './PlayerModal.css';
@@ -14,6 +17,7 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
   const [noteSaving, setNoteSaving] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
   const [noteLoading, setNoteLoading] = useState(false);
+  const [espnStats, setEspnStats] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -76,6 +80,30 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
     }
   }, [isOpen, player?.id]);
 
+  // Position groups for filtering stats
+  const offensivePositions = ['QB', 'RB', 'WR', 'TE', 'FB', 'HB'];
+  const defensivePositions = ['CB', 'S', 'FS', 'SS', 'LB', 'ILB', 'OLB', 'MLB', 'DE', 'DT', 'NT', 'DL', 'EDGE', 'DB'];
+  const oLinePositions = ['OT', 'OG', 'C', 'G', 'T', 'OL', 'IOL'];
+  const receiverPositions = ['WR', 'TE']; // Only show receiving stats
+  const rushingPositions = ['RB', 'FB', 'HB']; // Show rushing and receiving
+
+  const isOffensivePlayer = player ? offensivePositions.includes(player.position) : false;
+  const isDefensivePlayer = player ? defensivePositions.includes(player.position) : false;
+  const isOLineman = player ? oLinePositions.includes(player.position) : false;
+  const isReceiver = player ? receiverPositions.includes(player.position) : false;
+  const isRB = player ? rushingPositions.includes(player.position) : false;
+  const isQB = player ? player.position === 'QB' : false;
+
+  // Load ESPN stats when player changes (skip for OL) - instant since data is hardcoded
+  useEffect(() => {
+    if (isOpen && player && !isOLineman) {
+      const stats = getPlayerStats(player.name, player.college);
+      setEspnStats(stats);
+    } else {
+      setEspnStats(null);
+    }
+  }, [isOpen, player?.id, player?.name, player?.college, isOLineman]);
+
   useEffect(() => {
     if (isOpen) {
       previousFocusRef.current = document.activeElement;
@@ -125,6 +153,7 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
 
   const positionClass = player.position.toLowerCase().replace('/', '-');
   const collegeLogo = getCollegeLogo(player.college);
+  const collegeColors = getCollegeColors(player.college);
 
   const renderStats = () => {
     const stats = player.stats;
@@ -208,6 +237,20 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
         aria-label={`${player.name} player profile`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Corner triangles with team colors */}
+        <div className="modal-corner-top-right">
+          <svg viewBox="0 0 80 80" preserveAspectRatio="none">
+            <polygon points="0,0 80,0 80,80" fill={collegeColors.primary} />
+            <polygon points="20,0 80,0 80,60" fill={collegeColors.secondary} />
+          </svg>
+        </div>
+        <div className="modal-corner-bottom-left">
+          <svg viewBox="0 0 80 80" preserveAspectRatio="none">
+            <polygon points="0,0 0,80 80,80" fill={collegeColors.primary} />
+            <polygon points="0,20 0,80 60,80" fill={collegeColors.secondary} />
+          </svg>
+        </div>
+
         <button className="modal-close" onClick={onClose} aria-label="Close modal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 6L6 18M6 6l12 12" />
@@ -231,16 +274,16 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
               )}
             </div>
             <h2 className="modal-player-name">{player.name}</h2>
-            <div className="modal-badges">
-              <span className={`position-badge ${positionClass}`}>
-                {player.position}
-              </span>
+            <div className="modal-badges-text">
+              <span className="modal-badge-item">{player.position}</span>
               {positionRank && (
-                <span className="modal-pos-rank">{positionRank}</span>
+                <>
+                  <span className="modal-badge-divider">|</span>
+                  <span className="modal-badge-item">{positionRank}</span>
+                </>
               )}
-              <span className="modal-overall-rank">
-                Overall Rank #{player.id}
-              </span>
+              <span className="modal-badge-divider">|</span>
+              <span className="modal-badge-item">Consensus #{player.id}</span>
             </div>
 
             {/* Tab Buttons */}
@@ -281,12 +324,6 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
                 </div>
               </div>
 
-              {/* Scouting Report */}
-              <div className="modal-section">
-                <h3>Scouting Report</h3>
-                <p className="modal-summary">{player.summary}</p>
-              </div>
-
               {/* Stats */}
               {statGroups && statGroups.length > 0 && (
                 <div className="modal-section">
@@ -309,32 +346,355 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
                 </div>
               )}
 
-              {/* Pros & Cons */}
+              {/* ESPN Career Stats - Skip for OL */}
+              {!isOLineman && (
               <div className="modal-section">
-                <div className="modal-pros-cons">
-                  <div className="modal-pros">
-                    <h3 className="pros-title">Pros</h3>
-                    {player.strengths && player.strengths.length > 0 ? (
-                      <ul>
-                        {player.strengths.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    ) : (
-                      <p className="modal-empty-list">No pros listed yet</p>
+                <h3>Career College Stats</h3>
+                {espnStats ? (
+                  <div className="espn-stats-tables">
+                    {/* Defense Stats Table - Only for defensive players */}
+                    {isDefensivePlayer && espnStats.defenseSeasons?.length > 0 && (
+                      <div className="stats-table-wrapper">
+                        <h4>Defense & Tackles</h4>
+                        <div className="stats-table-scroll">
+                          <table className="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Year</th>
+                                <th>Team</th>
+                                <th>Solo</th>
+                                <th>Ast</th>
+                                <th>Tot</th>
+                                <th>TFL</th>
+                                <th>Sack</th>
+                                <th>Int</th>
+                                <th>IntYd</th>
+                                <th>PD</th>
+                                <th>FF</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {espnStats.defenseSeasons.map((season, idx) => (
+                                <tr key={idx}>
+                                  <td>{season.year}</td>
+                                  <td>{season.team}</td>
+                                  <td>{formatStat(season.soloTackles)}</td>
+                                  <td>{formatStat(season.assistTackles)}</td>
+                                  <td>{formatStat(season.totalTackles)}</td>
+                                  <td>{formatStat(season.tacklesForLoss)}</td>
+                                  <td>{formatStat(season.sacks)}</td>
+                                  <td>{formatStat(season.interceptions)}</td>
+                                  <td>{formatStat(season.interceptionYards)}</td>
+                                  <td>{formatStat(season.passesDefended)}</td>
+                                  <td>{formatStat(season.fumblesForced)}</td>
+                                </tr>
+                              ))}
+                              {espnStats.defense && (
+                                <tr className="stats-total-row">
+                                  <td colSpan="2">Career</td>
+                                  <td>{formatStat(espnStats.defense.soloTackles)}</td>
+                                  <td>{formatStat(espnStats.defense.assistTackles)}</td>
+                                  <td>{formatStat(espnStats.defense.tackles)}</td>
+                                  <td>{formatStat(espnStats.defense.tacklesForLoss)}</td>
+                                  <td>{formatStat(espnStats.defense.sacks)}</td>
+                                  <td>{formatStat(espnStats.defense.interceptions)}</td>
+                                  <td>{formatStat(espnStats.defense.intYards)}</td>
+                                  <td>{formatStat(espnStats.defense.passDefensed)}</td>
+                                  <td>{formatStat(espnStats.defense.forcedFumbles)}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* QB Stats: Passing first, then Rushing, NO Receiving */}
+                    {isQB && espnStats.passingSeasons?.length > 0 && (
+                      <div className="stats-table-wrapper">
+                        <h4>Passing</h4>
+                        <div className="stats-table-scroll">
+                          <table className="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Year</th>
+                                <th>Team</th>
+                                <th>Cmp</th>
+                                <th>Att</th>
+                                <th>Yds</th>
+                                <th>TD</th>
+                                <th>Int</th>
+                                <th>Rtg</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {espnStats.passingSeasons.map((season, idx) => (
+                                <tr key={idx}>
+                                  <td>{season.year}</td>
+                                  <td>{season.team}</td>
+                                  <td>{formatStat(season.completions)}</td>
+                                  <td>{formatStat(season.passingAttempts)}</td>
+                                  <td>{formatStat(season.passingYards)}</td>
+                                  <td>{formatStat(season.passingTouchdowns)}</td>
+                                  <td>{formatStat(season.interceptions)}</td>
+                                  <td>{formatStat(season.QBRating || season.adjQBR)}</td>
+                                </tr>
+                              ))}
+                              {espnStats.passing && (
+                                <tr className="stats-total-row">
+                                  <td colSpan="2">Career</td>
+                                  <td>{formatStat(espnStats.passing.completions)}</td>
+                                  <td>{formatStat(espnStats.passing.attempts)}</td>
+                                  <td>{formatStat(espnStats.passing.yards)}</td>
+                                  <td>{formatStat(espnStats.passing.touchdowns)}</td>
+                                  <td>{formatStat(espnStats.passing.interceptions)}</td>
+                                  <td>{formatStat(espnStats.passing.rating)}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* QB Rushing Stats (after passing) */}
+                    {isQB && espnStats.rushingSeasons?.length > 0 && (
+                      <div className="stats-table-wrapper">
+                        <h4>Rushing</h4>
+                        <div className="stats-table-scroll">
+                          <table className="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Year</th>
+                                <th>Team</th>
+                                <th>Att</th>
+                                <th>Yds</th>
+                                <th>Avg</th>
+                                <th>TD</th>
+                                <th>Lng</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {espnStats.rushingSeasons.map((season, idx) => (
+                                <tr key={idx}>
+                                  <td>{season.year}</td>
+                                  <td>{season.team}</td>
+                                  <td>{formatStat(season.rushingAttempts)}</td>
+                                  <td>{formatStat(season.rushingYards)}</td>
+                                  <td>{formatStat(season.yardsPerRushAttempt)}</td>
+                                  <td>{formatStat(season.rushingTouchdowns)}</td>
+                                  <td>{formatStat(season.longRushing)}</td>
+                                </tr>
+                              ))}
+                              {espnStats.rushing && (
+                                <tr className="stats-total-row">
+                                  <td colSpan="2">Career</td>
+                                  <td>{formatStat(espnStats.rushing.attempts)}</td>
+                                  <td>{formatStat(espnStats.rushing.yards)}</td>
+                                  <td>{formatStat(espnStats.rushing.yardsPerCarry)}</td>
+                                  <td>{formatStat(espnStats.rushing.touchdowns)}</td>
+                                  <td>{formatStat(espnStats.rushing.long)}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* RB/FB Stats: Rushing first, then Receiving */}
+                    {isRB && espnStats.rushingSeasons?.length > 0 && (
+                      <div className="stats-table-wrapper">
+                        <h4>Rushing</h4>
+                        <div className="stats-table-scroll">
+                          <table className="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Year</th>
+                                <th>Team</th>
+                                <th>Att</th>
+                                <th>Yds</th>
+                                <th>Avg</th>
+                                <th>TD</th>
+                                <th>Lng</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {espnStats.rushingSeasons.map((season, idx) => (
+                                <tr key={idx}>
+                                  <td>{season.year}</td>
+                                  <td>{season.team}</td>
+                                  <td>{formatStat(season.rushingAttempts)}</td>
+                                  <td>{formatStat(season.rushingYards)}</td>
+                                  <td>{formatStat(season.yardsPerRushAttempt)}</td>
+                                  <td>{formatStat(season.rushingTouchdowns)}</td>
+                                  <td>{formatStat(season.longRushing)}</td>
+                                </tr>
+                              ))}
+                              {espnStats.rushing && (
+                                <tr className="stats-total-row">
+                                  <td colSpan="2">Career</td>
+                                  <td>{formatStat(espnStats.rushing.attempts)}</td>
+                                  <td>{formatStat(espnStats.rushing.yards)}</td>
+                                  <td>{formatStat(espnStats.rushing.yardsPerCarry)}</td>
+                                  <td>{formatStat(espnStats.rushing.touchdowns)}</td>
+                                  <td>{formatStat(espnStats.rushing.long)}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* RB Receiving Stats (after rushing) */}
+                    {isRB && espnStats.receivingSeasons?.length > 0 && (
+                      <div className="stats-table-wrapper">
+                        <h4>Receiving</h4>
+                        <div className="stats-table-scroll">
+                          <table className="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Year</th>
+                                <th>Team</th>
+                                <th>Rec</th>
+                                <th>Yds</th>
+                                <th>Avg</th>
+                                <th>TD</th>
+                                <th>Lng</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {espnStats.receivingSeasons.map((season, idx) => (
+                                <tr key={idx}>
+                                  <td>{season.year}</td>
+                                  <td>{season.team}</td>
+                                  <td>{formatStat(season.receptions)}</td>
+                                  <td>{formatStat(season.receivingYards)}</td>
+                                  <td>{formatStat(season.yardsPerReception)}</td>
+                                  <td>{formatStat(season.receivingTouchdowns)}</td>
+                                  <td>{formatStat(season.longReception)}</td>
+                                </tr>
+                              ))}
+                              {espnStats.receiving && (
+                                <tr className="stats-total-row">
+                                  <td colSpan="2">Career</td>
+                                  <td>{formatStat(espnStats.receiving.receptions)}</td>
+                                  <td>{formatStat(espnStats.receiving.yards)}</td>
+                                  <td>{formatStat(espnStats.receiving.yardsPerReception)}</td>
+                                  <td>{formatStat(espnStats.receiving.touchdowns)}</td>
+                                  <td>{formatStat(espnStats.receiving.long)}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* WR/TE Stats: Only Receiving */}
+                    {isReceiver && espnStats.receivingSeasons?.length > 0 && (
+                      <div className="stats-table-wrapper">
+                        <h4>Receiving</h4>
+                        <div className="stats-table-scroll">
+                          <table className="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Year</th>
+                                <th>Team</th>
+                                <th>Rec</th>
+                                <th>Yds</th>
+                                <th>Avg</th>
+                                <th>TD</th>
+                                <th>Lng</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {espnStats.receivingSeasons.map((season, idx) => (
+                                <tr key={idx}>
+                                  <td>{season.year}</td>
+                                  <td>{season.team}</td>
+                                  <td>{formatStat(season.receptions)}</td>
+                                  <td>{formatStat(season.receivingYards)}</td>
+                                  <td>{formatStat(season.yardsPerReception)}</td>
+                                  <td>{formatStat(season.receivingTouchdowns)}</td>
+                                  <td>{formatStat(season.longReception)}</td>
+                                </tr>
+                              ))}
+                              {espnStats.receiving && (
+                                <tr className="stats-total-row">
+                                  <td colSpan="2">Career</td>
+                                  <td>{formatStat(espnStats.receiving.receptions)}</td>
+                                  <td>{formatStat(espnStats.receiving.yards)}</td>
+                                  <td>{formatStat(espnStats.receiving.yardsPerReception)}</td>
+                                  <td>{formatStat(espnStats.receiving.touchdowns)}</td>
+                                  <td>{formatStat(espnStats.receiving.long)}</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Empty state based on position */}
+                    {isDefensivePlayer && !espnStats.defenseSeasons?.length && (
+                      <p className="espn-stats-empty">No career stats available</p>
+                    )}
+                    {isQB && !espnStats.passingSeasons?.length && !espnStats.rushingSeasons?.length && (
+                      <p className="espn-stats-empty">No career stats available</p>
+                    )}
+                    {isRB && !espnStats.rushingSeasons?.length && !espnStats.receivingSeasons?.length && (
+                      <p className="espn-stats-empty">No career stats available</p>
+                    )}
+                    {isReceiver && !espnStats.receivingSeasons?.length && (
+                      <p className="espn-stats-empty">No career stats available</p>
                     )}
                   </div>
-                  <div className="modal-pros-cons-divider" />
-                  <div className="modal-cons">
-                    <h3 className="cons-title">Cons</h3>
-                    {player.weaknesses && player.weaknesses.length > 0 ? (
-                      <ul>
-                        {player.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
-                      </ul>
-                    ) : (
-                      <p className="modal-empty-list">No cons listed yet</p>
-                    )}
-                  </div>
-                </div>
+                ) : (
+                  <p className="espn-stats-empty">Stats not available</p>
+                )}
               </div>
+              )}
+
+              {/* Pros & Cons */}
+              {(() => {
+                const notes = getPlayerNotes(player.id);
+                const pros = notes?.pros || player.strengths || [];
+                const cons = notes?.cons || player.weaknesses || [];
+                return (
+                  <div className="modal-section">
+                    {notes?.comparisons && (
+                      <div className="modal-comparisons">
+                        <span className="comparisons-label">Comparisons:</span> {notes.comparisons}
+                      </div>
+                    )}
+                    <div className="modal-pros-cons">
+                      <div className="modal-pros">
+                        <h3 className="pros-title">Pros</h3>
+                        {pros.length > 0 ? (
+                          <ul>
+                            {pros.map((s, i) => <li key={i}>{s}</li>)}
+                          </ul>
+                        ) : (
+                          <p className="modal-empty-list">Coming soon</p>
+                        )}
+                      </div>
+                      <div className="modal-pros-cons-divider" />
+                      <div className="modal-cons">
+                        <h3 className="cons-title">Cons</h3>
+                        {cons.length > 0 ? (
+                          <ul>
+                            {cons.map((w, i) => <li key={i}>{w}</li>)}
+                          </ul>
+                        ) : (
+                          <p className="modal-empty-list">Coming soon</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Add Notes */}
               <div className="modal-section modal-notes-section">

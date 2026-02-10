@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { prospects, positions } from '../data/prospects';
+import { customBigBoardRankings } from '../data/customBigBoard';
 import { draftOrder as baseDraftOrder, teamColors, roundInfo, allTeams } from '../data/draftOrder';
 import { getNflLogo } from '../data/nflLogos';
+import { getCollegeLogo } from '../data/collegeLogos';
 import PlayerModal from '../components/PlayerModal';
 import './MockDraft.css';
 
@@ -15,8 +16,9 @@ function MockDraft({ myBoard }) {
   const [positionFilter, setPositionFilter] = useState('');
   const [showTeamSelect, setShowTeamSelect] = useState(true);
   const [roundCount, setRoundCount] = useState(1);
-  const [randomness, setRandomness] = useState(0);
-  const [teamNeedsWeight, setTeamNeedsWeight] = useState(50);
+  const [randomness, setRandomness] = useState(35);
+  const [teamNeedsWeight, setTeamNeedsWeight] = useState(35);
+  const [selectedBoard, setSelectedBoard] = useState('consensus'); // 'consensus', 'mrlutz', 'custom'
   const [isSimulating, setIsSimulating] = useState(false);
   const [trades, setTrades] = useState([]); // Array of { pick, fromTeam, toTeam }
   const [showTradeModal, setShowTradeModal] = useState(false);
@@ -27,6 +29,11 @@ function MockDraft({ myBoard }) {
   const [pickDebugInfo, setPickDebugInfo] = useState({});
   const [filledNeeds, setFilledNeeds] = useState({});
   const [showDebug, setShowDebug] = useState(false);
+  const [showFullResults, setShowFullResults] = useState(false);
+  const [fullResultsRoundFilter, setFullResultsRoundFilter] = useState(null);
+  const [showMyPicks, setShowMyPicks] = useState(false);
+  const [myPicksTeamIndex, setMyPicksTeamIndex] = useState(0);
+  const [reviewTeam, setReviewTeam] = useState(null); // For complete panel team review
   const currentPickRef = useRef(null);
   const simulationRef = useRef(null);
 
@@ -63,24 +70,32 @@ function MockDraft({ myBoard }) {
     }
   }, [currentPick, draftStarted]);
 
+  // Get the board order based on selection
+  const activeBoardOrder = useMemo(() => {
+    if (selectedBoard === 'mrlutz' && customBigBoardRankings.length > 0) {
+      return customBigBoardRankings;
+    } else if (selectedBoard === 'custom' && myBoard && myBoard.length > 0) {
+      return myBoard.map(p => p.id);
+    }
+    // Default to consensus (prospect ids in order)
+    return prospects.map(p => p.id);
+  }, [selectedBoard, myBoard]);
+
   // Get available players sorted by board
   const getAvailablePlayers = useCallback((drafted) => {
     const draftedIds = Object.values(drafted).map(p => p.id);
     const available = prospects.filter(p => !draftedIds.includes(p.id));
 
-    if (myBoard && myBoard.length > 0) {
-      const boardIds = myBoard.map(p => p.id);
-      return available.sort((a, b) => {
-        const aIndex = boardIds.indexOf(a.id);
-        const bIndex = boardIds.indexOf(b.id);
-        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-        if (aIndex !== -1) return -1;
-        if (bIndex !== -1) return 1;
-        return a.id - b.id;
-      });
-    }
-    return available.sort((a, b) => a.id - b.id);
-  }, [myBoard]);
+    // Sort by the active board order
+    return available.sort((a, b) => {
+      const aIndex = activeBoardOrder.indexOf(a.id);
+      const bIndex = activeBoardOrder.indexOf(b.id);
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return a.id - b.id;
+    });
+  }, [activeBoardOrder]);
 
   const availablePlayers = useMemo(() => {
     return getAvailablePlayers(draftedPlayers);
@@ -126,6 +141,100 @@ function MockDraft({ myBoard }) {
     const abbrev = pickInfo.abbrev;
     const teamFilled = currentFilledNeeds[abbrev] || {};
     const round = pickInfo.round;
+    const pickNum = pickInfo.pick;
+
+    // SPECIAL CASE: Raiders pick #1 - ALWAYS select Mendoza
+    if (pickNum === 1 && abbrev === 'LV') {
+      const mendoza = available.find(p => p.name.toLowerCase().includes('mendoza'));
+      if (mendoza) {
+        return {
+          player: mendoza,
+          debug: {
+            boardScore: 1,
+            needScore: 1,
+            posValueScore: 1,
+            reachPenalty: 0,
+            finalScore: 1,
+            confidence: 99,
+            pickType: 'Locked Pick',
+            teamNeeds,
+            filledPositions: { ...teamFilled },
+            runners: []
+          }
+        };
+      }
+    }
+
+    // SPECIAL CASE: Jets pick #2 - BPA excluding offensive line
+    if (pickNum === 2 && abbrev === 'NYJ') {
+      const oLinePositions = ['OT', 'OG', 'OC'];
+      const nonOLineAvailable = available.filter(p => !oLinePositions.includes(p.position));
+      if (nonOLineAvailable.length > 0) {
+        const bestPlayer = nonOLineAvailable[0]; // First available is BPA
+        return {
+          player: bestPlayer,
+          debug: {
+            boardScore: 1,
+            needScore: 0,
+            posValueScore: 1,
+            reachPenalty: 0,
+            finalScore: 1,
+            confidence: 99,
+            pickType: 'BPA (No OL)',
+            teamNeeds,
+            filledPositions: { ...teamFilled },
+            runners: nonOLineAvailable.slice(1, 4).map(p => ({ name: p.name, position: p.position, finalScore: 0.9 }))
+          }
+        };
+      }
+    }
+
+    // SPECIAL CASE: Cardinals pick #3 - BPA excluding RB
+    if (pickNum === 3 && abbrev === 'ARI') {
+      const nonRBAvailable = available.filter(p => p.position !== 'RB');
+      if (nonRBAvailable.length > 0) {
+        const bestPlayer = nonRBAvailable[0];
+        return {
+          player: bestPlayer,
+          debug: {
+            boardScore: 1,
+            needScore: 0,
+            posValueScore: 1,
+            reachPenalty: 0,
+            finalScore: 1,
+            confidence: 99,
+            pickType: 'BPA (No RB)',
+            teamNeeds,
+            filledPositions: { ...teamFilled },
+            runners: nonRBAvailable.slice(1, 4).map(p => ({ name: p.name, position: p.position, finalScore: 0.9 }))
+          }
+        };
+      }
+    }
+
+    // SPECIAL CASE: Browns pick #6 - Offense only, excluding QB
+    if (pickNum === 6 && abbrev === 'CLE') {
+      const offensivePositions = ['RB', 'WR', 'TE', 'OT', 'OG', 'OC'];
+      const offensiveAvailable = available.filter(p => offensivePositions.includes(p.position));
+      if (offensiveAvailable.length > 0) {
+        const bestOffensive = offensiveAvailable[0];
+        return {
+          player: bestOffensive,
+          debug: {
+            boardScore: 1,
+            needScore: 1,
+            posValueScore: 1,
+            reachPenalty: 0,
+            finalScore: 1,
+            confidence: 99,
+            pickType: 'Offense Only',
+            teamNeeds,
+            filledPositions: { ...teamFilled },
+            runners: offensiveAvailable.slice(1, 4).map(p => ({ name: p.name, position: p.position, finalScore: 0.9 }))
+          }
+        };
+      }
+    }
 
     // Determine round tier for position premiums
     const roundTier = round <= 2 ? 'early' : round <= 4 ? 'mid' : 'late';
@@ -135,6 +244,13 @@ function MockDraft({ myBoard }) {
     const maxRange = Math.max(1, Math.floor(1 + (randomness / 100) * 4));
     const candidatePoolSize = Math.max(maxRange * 3, 20);
     const candidates = available.slice(0, Math.min(candidatePoolSize, available.length));
+
+    // QB boost for QB-needy teams in top 12 picks (tapers from pick 1 to 12)
+    const hasQBNeed = teamNeeds.includes('QB');
+    const qbBoostMultiplier = (hasQBNeed && pickNum <= 12) ? (1 - (pickNum - 1) / 12) : 0;
+
+    // Chargers first round interior OL bias
+    const isChargersRound1 = abbrev === 'LAC' && round === 1;
 
     // Score each candidate
     const scored = candidates.map((player, idx) => {
@@ -163,15 +279,28 @@ function MockDraft({ myBoard }) {
       else if (reachGap > 25) reachPenalty = 0.15;
       else if (reachGap > 15) reachPenalty = 0.05;
 
+      // 5. QB boost for top 12 QB-needy teams (very strong, tapers off)
+      let qbBoost = 0;
+      if (player.position === 'QB' && qbBoostMultiplier > 0) {
+        // Strong boost: 0.8 at pick 1, tapering to 0 at pick 12
+        qbBoost = 0.8 * qbBoostMultiplier;
+      }
+
+      // 6. Chargers round 1 interior OL bias
+      let interiorOLBoost = 0;
+      if (isChargersRound1 && (player.position === 'OG' || player.position === 'OC')) {
+        interiorOLBoost = 0.5;
+      }
+
       // Combine scores with dynamic weights
       const needsInfluence = teamNeedsWeight / 100;
       const W_board = (1 - needsInfluence) * 0.65 + 0.2;
       const W_need = needsInfluence * 0.6;
       const W_posValue = 0.15;
 
-      const finalScore = (boardScore * W_board) + (needScore * W_need) + (posValueScore * W_posValue) - reachPenalty;
+      const finalScore = (boardScore * W_board) + (needScore * W_need) + (posValueScore * W_posValue) - reachPenalty + qbBoost + interiorOLBoost;
 
-      return { player, boardScore, needScore, posValueScore, reachPenalty, finalScore, W_board, W_need, W_posValue };
+      return { player, boardScore, needScore, posValueScore, reachPenalty, qbBoost, interiorOLBoost, finalScore, W_board, W_need, W_posValue };
     });
 
     // Sort by final score descending
@@ -384,20 +513,6 @@ function MockDraft({ myBoard }) {
   const isDraftComplete = !activePicks.some(p => p.pick >= currentPick);
   const progressPercent = Math.min((Object.keys(draftedPlayers).length / totalPicks) * 100, 100);
 
-  // Get user's picks for the summary
-  const userPicks = useMemo(() => {
-    return activePicks
-      .filter(p => userTeams.includes(p.abbrev) && draftedPlayers[p.pick])
-      .map(p => ({
-        pick: p.pick,
-        round: p.round,
-        pickInRound: p.pickInRound,
-        team: p.team,
-        abbrev: p.abbrev,
-        player: draftedPlayers[p.pick]
-      }));
-  }, [draftedPlayers, userTeams, activePicks]);
-
   // Get unique teams for team selection
   const teamsWithPicks = useMemo(() => {
     const teamMap = new Map();
@@ -414,13 +529,6 @@ function MockDraft({ myBoard }) {
       <div className="container">
         <div className="page-header">
           <h1>Mock Draft Simulator</h1>
-          <p className="page-subtitle">
-            {myBoard && myBoard.length > 0 ? (
-              <span className="board-indicator">Custom Board ({myBoard.length})</span>
-            ) : (
-              <span className="board-indicator">Consensus Board</span>
-            )}
-          </p>
         </div>
 
         {/* Team Selection */}
@@ -440,6 +548,42 @@ function MockDraft({ myBoard }) {
                     />
                     <span className="round-num">{num}</span>
                   </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="team-selection-inner">
+              <h2>Select Your Teams</h2>
+              <p>Choose which teams you want to control in the draft</p>
+
+              <div className="team-select-actions">
+                <button className="btn btn-secondary" onClick={selectAllTeams}>
+                  Select All
+                </button>
+                <button className="btn btn-secondary" onClick={clearAllTeams}>
+                  Clear All
+                </button>
+              </div>
+
+              <div className="team-grid">
+                {teamsWithPicks.map(({ abbrev, firstPick }) => (
+                  <button
+                    key={abbrev}
+                    className={`team-btn ${userTeams.includes(abbrev) ? 'selected' : ''}`}
+                    onClick={() => toggleTeam(abbrev)}
+                    style={{
+                      '--team-primary': teamColors[abbrev]?.primary,
+                      '--team-secondary': teamColors[abbrev]?.secondary
+                    }}
+                  >
+                    <span className="team-pick">#{firstPick}</span>
+                    <span className="team-abbrev">{abbrev}</span>
+                    <img
+                      src={getNflLogo(abbrev)}
+                      alt={abbrev}
+                      className="team-logo"
+                    />
+                  </button>
                 ))}
               </div>
             </div>
@@ -486,55 +630,46 @@ function MockDraft({ myBoard }) {
               </div>
             </div>
 
-            <div className="team-selection-inner">
-              <h2>Select Your Teams</h2>
-              <p>Choose which teams you want to control in the draft</p>
-
-              <div className="team-select-actions">
-                <button className="btn btn-secondary" onClick={selectAllTeams}>
-                  Select All
-                </button>
-                <button className="btn btn-secondary" onClick={clearAllTeams}>
-                  Clear All
-                </button>
-              </div>
-
-              <div className="team-grid">
-                {teamsWithPicks.map(({ abbrev, firstPick }) => (
-                  <button
-                    key={abbrev}
-                    className={`team-btn ${userTeams.includes(abbrev) ? 'selected' : ''}`}
-                    onClick={() => toggleTeam(abbrev)}
-                    style={{
-                      '--team-primary': teamColors[abbrev]?.primary,
-                      '--team-secondary': teamColors[abbrev]?.secondary
-                    }}
-                  >
-                    <span className="team-pick">#{firstPick}</span>
-                    <span className="team-abbrev">{abbrev}</span>
-                    <img
-                      src={getNflLogo(abbrev)}
-                      alt={abbrev}
-                      className="team-logo"
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <div className="start-draft-section">
-                <p className="teams-selected">
-                  {userTeams.length === 0
-                    ? 'Select at least one team to start'
-                    : <><strong>{userTeams.length}</strong> team{userTeams.length !== 1 ? 's' : ''} selected</>}
-                </p>
-                <button
-                  className="btn btn-primary btn-large start-draft-btn"
-                  onClick={startDraft}
-                  disabled={userTeams.length === 0}
+            <div className="board-selection">
+              <h3>Draft Board</h3>
+              <p>Choose which big board the CPU will draft from</p>
+              <div className="board-options-inline">
+                <span
+                  className={`board-option-text ${selectedBoard === 'consensus' ? 'selected' : ''}`}
+                  onClick={() => setSelectedBoard('consensus')}
                 >
-                  Start Draft
-                </button>
+                  Consensus
+                </span>
+                <span className="board-divider">|</span>
+                <span
+                  className={`board-option-text ${selectedBoard === 'mrlutz' ? 'selected' : ''}`}
+                  onClick={() => setSelectedBoard('mrlutz')}
+                >
+                  Mr Lutz's
+                </span>
+                <span className="board-divider">|</span>
+                <span
+                  className={`board-option-text ${selectedBoard === 'custom' ? 'selected' : ''} ${!myBoard || myBoard.length === 0 ? 'disabled' : ''}`}
+                  onClick={() => myBoard && myBoard.length > 0 && setSelectedBoard('custom')}
+                >
+                  My Board
+                </span>
               </div>
+            </div>
+
+            <div className="start-draft-section">
+              <p className="teams-selected">
+                {userTeams.length === 0
+                  ? 'Select at least one team to start'
+                  : <><strong>{userTeams.length}</strong> team{userTeams.length !== 1 ? 's' : ''} selected</>}
+              </p>
+              <button
+                className="btn btn-primary btn-large start-draft-btn"
+                onClick={startDraft}
+                disabled={userTeams.length === 0}
+              >
+                Start Draft
+              </button>
             </div>
           </div>
         )}
@@ -638,6 +773,19 @@ function MockDraft({ myBoard }) {
                                   onClick={() => { setModalPlayer(player); setModalPlayerIndex(index); }}
                                 >
                                   <span className="player-rank">{player.id}</span>
+                                  <div className="player-logo-small">
+                                    {getCollegeLogo(player.college) ? (
+                                      <img src={getCollegeLogo(player.college)} alt={player.college} />
+                                    ) : (
+                                      <div className="logo-placeholder-small">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                          <path d="M2 17l10 5 10-5" />
+                                          <path d="M2 12l10 5 10-5" />
+                                        </svg>
+                                      </div>
+                                    )}
+                                  </div>
                                   <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
                                     {player.position}
                                   </span>
@@ -666,7 +814,6 @@ function MockDraft({ myBoard }) {
               {isDraftComplete && (
                 <div className="selection-panel draft-complete-panel">
                   <div className="draft-complete">
-                    <div className="complete-icon">🏆</div>
                     <h2>Draft Complete!</h2>
                     <p>
                       {roundCount === 7
@@ -674,38 +821,86 @@ function MockDraft({ myBoard }) {
                         : `Round${roundCount > 1 ? 's' : ''} 1${roundCount > 1 ? `-${roundCount}` : ''} complete.`}
                     </p>
 
-                    {userPicks.length > 0 && (
-                      <div className="user-picks-summary">
-                        <h3>Your Selections ({userPicks.length} picks)</h3>
-                        <div className="user-picks-list">
-                          {userPicks.map(({ pick, round, pickInRound, abbrev, player }) => (
-                            <div key={pick} className="user-pick-item">
-                              <div className="pick-number-group">
-                                <div className="pick-number">{pick}</div>
-                                <div className="pick-round">R{round}.{pickInRound}</div>
-                              </div>
-                              <div className="pick-team">
-                                <span className="team-abbrev">{abbrev}</span>
-                              </div>
-                              <div className="pick-player">
-                                <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
-                                  {player.position}
-                                </span>
-                                <span className="player-name">{player.name}</span>
-                              </div>
-                            </div>
-                          ))}
+                    <div className="complete-actions">
+                      <button className="btn btn-primary" onClick={() => setShowFullResults(true)}>
+                        View Full Results
+                      </button>
+                    </div>
+
+                    <div className="complete-team-review">
+                      <div className="team-review-header">
+                        <h3>Team Review</h3>
+                        <div className="team-review-nav">
+                          {userTeams.length > 1 && (
+                            <button
+                              className="team-nav-btn-small"
+                              onClick={() => {
+                                const newIdx = (myPicksTeamIndex - 1 + userTeams.length) % userTeams.length;
+                                setMyPicksTeamIndex(newIdx);
+                                setReviewTeam(userTeams[newIdx]);
+                              }}
+                            >
+                              ←
+                            </button>
+                          )}
+                          <select
+                            className="team-review-select"
+                            value={reviewTeam || (userTeams.length > 0 ? userTeams[0] : allTeams[0])}
+                            onChange={(e) => setReviewTeam(e.target.value)}
+                          >
+                            {allTeams.map(team => (
+                              <option key={team} value={team}>{team}</option>
+                            ))}
+                          </select>
+                          {userTeams.length > 1 && (
+                            <button
+                              className="team-nav-btn-small"
+                              onClick={() => {
+                                const newIdx = (myPicksTeamIndex + 1) % userTeams.length;
+                                setMyPicksTeamIndex(newIdx);
+                                setReviewTeam(userTeams[newIdx]);
+                              }}
+                            >
+                              →
+                            </button>
+                          )}
                         </div>
                       </div>
-                    )}
+                      <div className="team-review-picks">
+                        {(() => {
+                          const selectedTeam = reviewTeam || (userTeams.length > 0 ? userTeams[0] : allTeams[0]);
+                          const teamPicks = activePicks
+                            .filter(p => p.abbrev === selectedTeam && draftedPlayers[p.pick])
+                            .map(p => ({ ...p, player: draftedPlayers[p.pick] }));
 
-                    <div className="complete-actions">
-                      <button className="btn btn-primary" onClick={resetDraft}>
+                          if (teamPicks.length === 0) {
+                            return <p className="no-picks-inline">No picks for this team</p>;
+                          }
+
+                          return teamPicks.map(({ pick, round, pickInRound, player }) => (
+                            <div key={pick} className="team-review-pick">
+                              <span className="review-pick-num">{pick}</span>
+                              <div className="review-player-logo">
+                                {getCollegeLogo(player.college) ? (
+                                  <img src={getCollegeLogo(player.college)} alt={player.college} />
+                                ) : (
+                                  <div className="logo-placeholder-tiny" />
+                                )}
+                              </div>
+                              <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
+                                {player.position}
+                              </span>
+                              <span className="review-player-name">{player.name}</span>
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+
+                    <div className="complete-actions-secondary">
+                      <button className="btn btn-secondary" onClick={resetDraft}>
                         Start New Draft
                       </button>
-                      <Link to="/prospects" className="btn btn-secondary">
-                        View Big Board
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -744,20 +939,22 @@ function MockDraft({ myBoard }) {
                       >
                         <div className="pick-number">{pick}</div>
                         <div className="pick-team">
-                          <span className="team-abbrev">{abbrev}</span>
+                          <img src={getNflLogo(abbrev)} alt={abbrev} className="team-logo-small" />
                           {isUser && <span className="user-badge">YOU</span>}
                         </div>
                         {player ? (
                           <div className="pick-player">
+                            <div className="pick-player-logo">
+                              {getCollegeLogo(player.college) ? (
+                                <img src={getCollegeLogo(player.college)} alt={player.college} />
+                              ) : (
+                                <div className="logo-placeholder-tiny" />
+                              )}
+                            </div>
                             <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
                               {player.position}
                             </span>
                             <span className="player-name">{player.name}</span>
-                            {pickDebugInfo[pick] && (
-                              <span className={`pick-type-badge ${pickDebugInfo[pick].pickType.toLowerCase().replace(/\s\+\s/g, '-')}`}>
-                                {pickDebugInfo[pick].pickType}
-                              </span>
-                            )}
                           </div>
                         ) : (
                           <div className={`pick-empty ${isCurrent ? 'on-clock' : ''}`}>
@@ -886,6 +1083,165 @@ function MockDraft({ myBoard }) {
                 <button className="btn btn-secondary" onClick={() => setShowTradeModal(false)}>
                   Cancel
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Full Results Modal */}
+        {showFullResults && (
+          <div className="results-modal-overlay" onClick={() => setShowFullResults(false)}>
+            <div className="results-modal" onClick={e => e.stopPropagation()}>
+              <div className="results-modal-header">
+                <h2>Draft Results</h2>
+                <button className="close-btn" onClick={() => setShowFullResults(false)}>×</button>
+              </div>
+              <div className="results-round-filter">
+                <button
+                  className={`round-filter-btn ${fullResultsRoundFilter === null ? 'active' : ''}`}
+                  onClick={() => setFullResultsRoundFilter(null)}
+                >
+                  All
+                </button>
+                {Array.from({ length: roundCount }, (_, i) => i + 1).map(r => (
+                  <button
+                    key={r}
+                    className={`round-filter-btn ${fullResultsRoundFilter === r ? 'active' : ''}`}
+                    onClick={() => setFullResultsRoundFilter(r)}
+                  >
+                    Rd {r}
+                  </button>
+                ))}
+              </div>
+              <div className="results-modal-content">
+                {(() => {
+                  const filteredPicks = activePicks.filter(p =>
+                    draftedPlayers[p.pick] && (fullResultsRoundFilter === null || p.round === fullResultsRoundFilter)
+                  );
+                  const midpoint = Math.ceil(filteredPicks.length / 2);
+                  const leftPicks = filteredPicks.slice(0, midpoint);
+                  const rightPicks = filteredPicks.slice(midpoint);
+
+                  return (
+                    <div className="results-columns">
+                      <div className="results-column">
+                        {leftPicks.map(p => {
+                          const player = draftedPlayers[p.pick];
+                          return (
+                            <div key={p.pick} className="results-pick-row">
+                              <span className="results-pick-num">{p.pick}</span>
+                              <span className="results-team">{p.abbrev}</span>
+                              <div className="results-player-logo">
+                                {getCollegeLogo(player.college) ? (
+                                  <img src={getCollegeLogo(player.college)} alt={player.college} />
+                                ) : (
+                                  <div className="logo-placeholder-tiny" />
+                                )}
+                              </div>
+                              <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
+                                {player.position}
+                              </span>
+                              <span className="results-player-name">{player.name}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="results-column">
+                        {rightPicks.map(p => {
+                          const player = draftedPlayers[p.pick];
+                          return (
+                            <div key={p.pick} className="results-pick-row">
+                              <span className="results-pick-num">{p.pick}</span>
+                              <span className="results-team">{p.abbrev}</span>
+                              <div className="results-player-logo">
+                                {getCollegeLogo(player.college) ? (
+                                  <img src={getCollegeLogo(player.college)} alt={player.college} />
+                                ) : (
+                                  <div className="logo-placeholder-tiny" />
+                                )}
+                              </div>
+                              <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
+                                {player.position}
+                              </span>
+                              <span className="results-player-name">{player.name}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* My Picks Modal */}
+        {showMyPicks && userTeams.length > 0 && (
+          <div className="results-modal-overlay" onClick={() => setShowMyPicks(false)}>
+            <div className="results-modal my-picks-modal" onClick={e => e.stopPropagation()}>
+              <div className="results-modal-header">
+                <h2>My Picks</h2>
+                <button className="close-btn" onClick={() => setShowMyPicks(false)}>×</button>
+              </div>
+              {userTeams.length > 1 && (
+                <div className="my-picks-team-nav">
+                  <button
+                    className="team-nav-btn"
+                    onClick={() => setMyPicksTeamIndex(i => (i - 1 + userTeams.length) % userTeams.length)}
+                  >
+                    ←
+                  </button>
+                  <img src={getNflLogo(userTeams[myPicksTeamIndex])} alt={userTeams[myPicksTeamIndex]} className="my-picks-team-logo" />
+                  <button
+                    className="team-nav-btn"
+                    onClick={() => setMyPicksTeamIndex(i => (i + 1) % userTeams.length)}
+                  >
+                    →
+                  </button>
+                </div>
+              )}
+              {userTeams.length === 1 && (
+                <div className="my-picks-team-header">
+                  <img src={getNflLogo(userTeams[0])} alt={userTeams[0]} className="my-picks-team-logo" />
+                </div>
+              )}
+              <div className="results-modal-content my-picks-content">
+                {(() => {
+                  const currentTeam = userTeams[myPicksTeamIndex];
+                  const teamPicks = activePicks
+                    .filter(p => p.abbrev === currentTeam && draftedPlayers[p.pick])
+                    .map(p => ({ ...p, player: draftedPlayers[p.pick] }));
+
+                  if (teamPicks.length === 0) {
+                    return <p className="no-picks-message">No picks made yet for {currentTeam}</p>;
+                  }
+
+                  return (
+                    <div className="my-picks-list">
+                      {teamPicks.map(({ pick, round, pickInRound, player }) => (
+                        <div key={pick} className="my-picks-row">
+                          <div className="my-picks-pick-info">
+                            <span className="my-picks-pick-num">{pick}</span>
+                            <span className="my-picks-round">R{round}.{pickInRound}</span>
+                          </div>
+                          <div className="my-picks-player-logo">
+                            {getCollegeLogo(player.college) ? (
+                              <img src={getCollegeLogo(player.college)} alt={player.college} />
+                            ) : (
+                              <div className="logo-placeholder-tiny" />
+                            )}
+                          </div>
+                          <span className={`position-badge ${player.position.toLowerCase().replace('/', '-')}`}>
+                            {player.position}
+                          </span>
+                          <span className="my-picks-player-name">{player.name}</span>
+                          <span className="my-picks-college">{player.college}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
