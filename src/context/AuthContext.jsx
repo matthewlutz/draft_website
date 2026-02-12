@@ -23,19 +23,34 @@ export function AuthProvider({ children }) {
           eq: { id: authUser.id },
         }).catch(() => {});
       } else {
-        await supabase.from('users').insert({
+        const { error: insertError } = await supabase.from('users').insert({
           id: authUser.id,
           email: authUser.email,
-          display_name: authUser.user_metadata?.display_name || '',
+          display_name: authUser.user_metadata?.display_name || authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
         });
+        if (insertError) {
+          console.error('Failed to create user profile:', insertError);
+        }
         setUserRole('USER');
       }
-    } catch {
+    } catch (err) {
+      console.error('ensureUserProfile error:', err);
       setUserRole('USER');
     }
   };
 
   useEffect(() => {
+    // Always listen for auth changes (must be registered before any session restore)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user && event === 'SIGNED_IN') {
+          await ensureUserProfile(session.user);
+        }
+        setLoading(false);
+      }
+    );
+
     // Try to restore session from localStorage first (workaround for getSession() hanging)
     const storedSession = localStorage.getItem('sb-nkqsuftmozkxnucqwyby-auth-token');
     let restoredUser = null;
@@ -43,7 +58,6 @@ export function AuthProvider({ children }) {
     if (storedSession) {
       try {
         const parsed = JSON.parse(storedSession);
-        // Check if token is expired
         const expiresAt = parsed?.expires_at;
         const now = Math.floor(Date.now() / 1000);
 
@@ -85,19 +99,11 @@ export function AuthProvider({ children }) {
           setLoading(false);
         });
 
-      return () => clearTimeout(timeoutId);
+      return () => {
+        clearTimeout(timeoutId);
+        subscription.unsubscribe();
+      };
     }
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user && event === 'SIGNED_IN') {
-          await ensureUserProfile(session.user);
-        }
-        setLoading(false);
-      }
-    );
 
     return () => {
       subscription.unsubscribe();
@@ -113,6 +119,9 @@ export function AuthProvider({ children }) {
       },
     });
     if (error) throw error;
+    if (data.user) {
+      await ensureUserProfile(data.user);
+    }
     return data.user;
   };
 
@@ -122,6 +131,9 @@ export function AuthProvider({ children }) {
       password,
     });
     if (error) throw error;
+    if (data.user) {
+      await ensureUserProfile(data.user);
+    }
     return data.user;
   };
 
