@@ -44,8 +44,8 @@
   --font-xs: clamp(0.65rem, 1vw, 0.75rem);
 
   /* Fluid element sizing */
-  --logo-size: clamp(20px, 3.5vw, 36px);
   --rank-size: clamp(28px, 4.5vw, 44px);
+  --logo-size: calc(var(--rank-size) * 0.9);
 
   /* Border radius */
   --radius-sm: 4px;

@@ -48,11 +48,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 var(--spacing-xs);
 }
 
 .team-logo-img {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
 }
 
@@ -194,6 +195,17 @@
   gap: var(--spacing-sm);
 }
 
+/* Desktop — more breathing room for rank/logo/name */
+@media (min-width: 769px) {
+  .player-rank {
+    margin-right: var(--spacing-xs);
+  }
+
+  .player-logo {
+    margin: 0 var(--spacing-sm);
+  }
+}
+
 /* Hide physical stats below desktop */
 @media (max-width: 1024px) {
   .player-physical {
@@ -226,8 +238,6 @@
   }
 
   .player-logo {
-    width: 20px;
-    height: 20px;
     margin: 0 4px;
   }
 
@@ -254,6 +264,10 @@
   }
 
   .player-pos-rank {
+    display: none;
+  }
+
+  .player-notes {
     display: none;
   }
 
