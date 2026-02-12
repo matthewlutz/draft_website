@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { prospects, getPositionRanks } from '../data/prospects';
-import { customBigBoardRankings, customBoardName } from '../data/customBigBoard';
-import { isPlayerReviewed, reviewedPlayerIds } from '../data/playerNotes';
+import { customBoardName } from '../data/customBigBoard';
+import { useAdminBigBoard } from '../hooks/useAdminBigBoard';
+import { useAdminPlayerNotes } from '../hooks/useAdminPlayerNotes';
 import playerStats from '../data/playerStats.json';
 import PlayerCard from '../components/PlayerCard';
 import PlayerModal from '../components/PlayerModal';
@@ -40,6 +41,9 @@ const parseHeightToInches = (heightStr) => {
 };
 
 function ProspectsList({ myBoard, onToggleBoard }) {
+  const { rankings: customBigBoardRankings } = useAdminBigBoard();
+  const { reviewedIds: reviewedPlayerIds, isReviewed: isPlayerReviewed } = useAdminPlayerNotes();
+
   const [filters, setFilters] = useState({
     search: '',
     positions: [],
@@ -97,7 +101,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
       return ranked;
     }
     return prospects.map(p => ({ ...p, customRank: p.id }));
-  }, [boardType, hasCustomBoard]);
+  }, [boardType, hasCustomBoard, customBigBoardRankings]);
 
   // Position ranks based on board order
   const positionRanks = useMemo(() => getPositionRanks(orderedProspects), [orderedProspects]);
@@ -275,7 +279,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
     }
 
     return result;
-  }, [filters, orderedProspects, showReviewedOnly, boardType, advancedFilters]);
+  }, [filters, orderedProspects, showReviewedOnly, boardType, advancedFilters, isPlayerReviewed]);
 
   // Reset to page 1 when filters or board type change
   useMemo(() => {

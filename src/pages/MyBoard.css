@@ -51,6 +51,30 @@
 }
 
 /* Board Actions Row */
+.admin-board-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.admin-publish-status {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.admin-publish-status.success {
+  color: #22c55e;
+}
+
+.admin-publish-status.error {
+  color: #ef4444;
+}
+
 .board-actions-row {
   display: flex;
   justify-content: flex-end;

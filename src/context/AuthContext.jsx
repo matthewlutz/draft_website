@@ -1,11 +1,39 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { supabase, supabaseRest } from '../supabase';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState('USER');
   const [loading, setLoading] = useState(true);
+
+  const ensureUserProfile = async (authUser) => {
+    try {
+      const { data: existing } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('id', authUser.id)
+        .single();
+
+      if (existing) {
+        setUserRole(existing.role || 'USER');
+        supabaseRest('users', 'PATCH', {
+          data: { last_active: new Date().toISOString() },
+          eq: { id: authUser.id },
+        }).catch(() => {});
+      } else {
+        await supabase.from('users').insert({
+          id: authUser.id,
+          email: authUser.email,
+          display_name: authUser.user_metadata?.display_name || '',
+        });
+        setUserRole('USER');
+      }
+    } catch {
+      setUserRole('USER');
+    }
+  };
 
   useEffect(() => {
     // Try to restore session from localStorage first (workaround for getSession() hanging)
@@ -27,7 +55,7 @@ export function AuthProvider({ children }) {
         } else if (parsed?.user && expiresAt && expiresAt <= now) {
           localStorage.removeItem('sb-nkqsuftmozkxnucqwyby-auth-token');
         }
-      } catch (e) {
+      } catch {
         // Invalid stored session
       }
     }
@@ -76,23 +104,6 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  async function ensureUserProfile(user) {
-    // Check if user profile exists, create if not
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (!existing) {
-      await supabase.from('users').insert({
-        id: user.id,
-        email: user.email,
-        display_name: user.user_metadata?.display_name || '',
-      });
-    }
-  }
-
   const register = async (email, password, displayName) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -117,14 +128,23 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
     });
     if (error) throw error;
     return data;
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // Clear state immediately so UI updates even if signOut() fails
+    setUser(null);
+    setUserRole('USER');
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Sign out may fail if token is already invalid - that's fine, state is already cleared
+    }
   };
 
   const updateDisplayName = async (displayName) => {
@@ -152,6 +172,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user,
+    userRole,
     loading,
     register,
     login,

@@ -1,13 +1,14 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { prospects, positions } from '../data/prospects';
-import { customBigBoardRankings } from '../data/customBigBoard';
-import { draftOrder as baseDraftOrder, teamColors, roundInfo, allTeams } from '../data/draftOrder';
+import { useAdminBigBoard } from '../hooks/useAdminBigBoard';
+import { draftOrder as baseDraftOrder, teamColors, roundInfo, allTeams, teamNeeds } from '../data/draftOrder';
 import { getNflLogo } from '../data/nflLogos';
 import { getCollegeLogo } from '../data/collegeLogos';
 import PlayerModal from '../components/PlayerModal';
 import './MockDraft.css';
 
 function MockDraft({ myBoard }) {
+  const { rankings: customBigBoardRankings } = useAdminBigBoard();
   const [userTeams, setUserTeams] = useState([]);
   const [draftStarted, setDraftStarted] = useState(false);
   const [currentPick, setCurrentPick] = useState(1);
@@ -79,7 +80,7 @@ function MockDraft({ myBoard }) {
     }
     // Default to consensus (prospect ids in order)
     return prospects.map(p => p.id);
-  }, [selectedBoard, myBoard]);
+  }, [selectedBoard, myBoard, customBigBoardRankings]);
 
   // Get available players sorted by board
   const getAvailablePlayers = useCallback((drafted) => {
@@ -719,6 +720,9 @@ function MockDraft({ myBoard }) {
                     <div className="clock-team-info">
                       <span className="clock-team-name">{currentPickInfo?.team}</span>
                       {isUserPick && !isSimulating && <span className="your-pick-badge">YOUR PICK</span>}
+                    </div>
+                    <div className="clock-team-needs">
+                      Needs: {teamNeeds[currentPickInfo?.abbrev]?.join(', ') || 'N/A'}
                     </div>
                   </div>
 

@@ -424,3 +424,5 @@ export const teamColors = {
 
 // Get all unique teams
 export const allTeams = [...new Set(draftOrder.map(p => p.abbrev))].sort();
+
+export { teamNeeds };

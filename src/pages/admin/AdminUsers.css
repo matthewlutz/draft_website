@@ -1,0 +1,4 @@
+/* Admin Users page - uses shared styles */
+.admin-users .admin-filters {
+  margin-bottom: var(--spacing-md);
+}

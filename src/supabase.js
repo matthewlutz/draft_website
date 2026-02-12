@@ -73,6 +73,90 @@ export async function supabaseRest(table, method, options = {}) {
     return { data: null, error: null };
   }
 
-  const result = await response.json();
+  const text = await response.text();
+  if (!text) {
+    return { data: null, error: null };
+  }
+
+  const result = JSON.parse(text);
   return { data: Array.isArray(result) ? result : [result], error: null };
+}
+
+// Advanced query helper with ordering, pagination, search, and select
+export async function supabaseQuery(table, options = {}) {
+  const { eq, or, order, range, limit, select, single } = options;
+
+  const accessToken = getUserAccessToken() || supabaseAnonKey;
+
+  const headers = {
+    'apikey': supabaseAnonKey,
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+
+  if (single) {
+    headers['Accept'] = 'application/vnd.pgrst.object+json';
+  }
+
+  const params = new URLSearchParams();
+
+  // Select columns
+  if (select) {
+    params.append('select', select);
+  }
+
+  // Equality filters
+  if (eq) {
+    Object.entries(eq).forEach(([key, value]) => {
+      params.append(key, `eq.${value}`);
+    });
+  }
+
+  // OR filter (PostgREST syntax)
+  if (or) {
+    params.append('or', `(${or})`);
+  }
+
+  // Ordering
+  if (order) {
+    const { column, ascending = true } = order;
+    params.append('order', `${column}.${ascending ? 'asc' : 'desc'}`);
+  }
+
+  // Pagination via range
+  if (range) {
+    const [from, to] = range;
+    headers['Range'] = `${from}-${to}`;
+    headers['Range-Unit'] = 'items';
+    headers['Prefer'] = 'count=exact';
+  }
+
+  // Limit
+  if (limit) {
+    params.append('limit', limit);
+  }
+
+  const queryString = params.toString();
+  const url = `${supabaseUrl}/rest/v1/${table}${queryString ? '?' + queryString : ''}`;
+
+  const response = await fetch(url, { method: 'GET', headers });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Supabase query error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+
+  // Extract total count from Content-Range header if pagination used
+  let count = null;
+  if (range) {
+    const contentRange = response.headers.get('Content-Range');
+    if (contentRange) {
+      const match = contentRange.match(/\/(\d+)/);
+      if (match) count = parseInt(match[1], 10);
+    }
+  }
+
+  return { data, count, error: null };
 }

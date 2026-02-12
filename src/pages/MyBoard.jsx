@@ -1,7 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getPositionRanks } from '../data/prospects';
+import { useAdmin } from '../hooks/useAdmin';
+import { useAdminBigBoard } from '../hooks/useAdminBigBoard';
+import { useAdminPlayerNotes } from '../hooks/useAdminPlayerNotes';
+import { supabaseQuery, supabaseRest } from '../supabase';
+import { useAuditLog } from '../hooks/useAuditLog';
+import { getProspectById, getPositionRanks } from '../data/prospects';
 import { getCollegeLogo } from '../data/collegeLogos';
 import SyncStatus from '../components/SyncStatus';
 import PlayerModal from '../components/PlayerModal';
@@ -20,6 +25,12 @@ function MyBoard({
   onSetBoardName,
 }) {
   const { user } = useAuth();
+  const { isSuperAdmin } = useAdmin();
+  const { rankings: adminBoardRankings } = useAdminBigBoard();
+  const { reviewedIds } = useAdminPlayerNotes();
+  const { log } = useAuditLog();
+  const [adminPublishing, setAdminPublishing] = useState(false);
+  const [adminPublishStatus, setAdminPublishStatus] = useState(null); // 'success' | 'error'
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -128,6 +139,58 @@ function MyBoard({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const loadReviewedPlayers = () => {
+    if (!reviewedIds || reviewedIds.size === 0) return;
+    // Import only players that have been reviewed (have notes), in big board order
+    const reviewedSet = new Set(reviewedIds);
+    const ordered = adminBoardRankings
+      .filter(id => reviewedSet.has(id))
+      .map(id => getProspectById(id))
+      .filter(Boolean);
+    // Also add any reviewed players not on the big board, at the end
+    const onBoard = new Set(ordered.map(p => p.id));
+    const extras = [...reviewedIds]
+      .filter(id => !onBoard.has(id))
+      .map(id => getProspectById(id))
+      .filter(Boolean);
+    onReorderBoard([...ordered, ...extras]);
+  };
+
+  const publishToAdminBoard = async () => {
+    if (myBoard.length === 0) return;
+    setAdminPublishing(true);
+    setAdminPublishStatus(null);
+    try {
+      const ids = myBoard.map(p => p.id);
+      // Check if admin board exists
+      const { data: existing } = await supabaseQuery('admin_big_board', {
+        eq: { board_name: 'mr_lutz' },
+        limit: 1,
+      });
+
+      if (existing && existing.length > 0) {
+        await supabaseRest('admin_big_board', 'PATCH', {
+          data: { prospect_ids: ids, updated_at: new Date().toISOString() },
+          eq: { id: existing[0].id },
+        });
+      } else {
+        await supabaseRest('admin_big_board', 'POST', {
+          data: { board_name: 'mr_lutz', prospect_ids: ids },
+        });
+      }
+
+      await log('update_big_board', 'big_board', 'mr_lutz', { count: ids.length, source: 'build_board' });
+      setAdminPublishStatus('success');
+      setTimeout(() => setAdminPublishStatus(null), 3000);
+    } catch (err) {
+      console.error('Publish error:', err);
+      setAdminPublishStatus('error');
+      setTimeout(() => setAdminPublishStatus(null), 5000);
+    } finally {
+      setAdminPublishing(false);
+    }
+  };
+
   const positionClass = (position) => position.toLowerCase().replace('/', '-');
 
   // Get display name for personalized board title
@@ -162,6 +225,29 @@ function MyBoard({
             </button>
           )}
         </div>
+
+        {isSuperAdmin && (
+          <div className="admin-board-actions">
+            <button className="btn btn-secondary btn-small" onClick={loadReviewedPlayers}>
+              Import Reviewed Only ({reviewedIds.size})
+            </button>
+            {myBoard.length > 0 && (
+              <button
+                className="btn btn-primary btn-small"
+                onClick={publishToAdminBoard}
+                disabled={adminPublishing}
+              >
+                {adminPublishing ? 'Publishing...' : 'Publish to Admin Board'}
+              </button>
+            )}
+            {adminPublishStatus === 'success' && (
+              <span className="admin-publish-status success">Published!</span>
+            )}
+            {adminPublishStatus === 'error' && (
+              <span className="admin-publish-status error">Failed to publish</span>
+            )}
+          </div>
+        )}
 
         {myBoard.length > 0 && (
           <div className="board-actions-row">

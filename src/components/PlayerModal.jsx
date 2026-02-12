@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { getCollegeLogo } from '../data/collegeLogos';
-import { getPlayerNotes } from '../data/playerNotes';
+import { useAdminPlayerNotes } from '../hooks/useAdminPlayerNotes';
 import { getCollegeColors } from '../data/collegeColors';
 import { getPlayerStats, formatStat } from '../services/espnStats';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,7 @@ import { supabase } from '../supabase';
 import './PlayerModal.css';
 
 function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, isOnBoard, positionRank }) {
+  const { getNotes: getPlayerNotes } = useAdminPlayerNotes();
   const modalRef = useRef(null);
   const previousFocusRef = useRef(null);
   const [activeTab, setActiveTab] = useState('overview');

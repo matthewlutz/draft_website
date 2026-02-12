@@ -1,0 +1,210 @@
+/* Player Notes Editor */
+.pn-layout {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: var(--spacing-md);
+  min-height: 60vh;
+}
+
+/* Left panel */
+.pn-list-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pn-list-controls {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pn-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--spacing-sm);
+}
+
+.pn-search-wrap .admin-input {
+  border: none;
+  background: transparent;
+  padding: var(--spacing-xs) 0;
+  font-size: 0.8rem;
+}
+
+.pn-list-controls .admin-select {
+  font-size: 0.75rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  min-width: 80px;
+}
+
+.pn-prospect-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+
+.pn-prospect-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.pn-prospect-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.pn-prospect-item.selected {
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 2px solid var(--accent-primary);
+}
+
+.pn-prospect-rank {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  min-width: 28px;
+}
+
+.pn-prospect-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pn-prospect-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+
+.pn-prospect-meta {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.pn-has-notes {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+/* Right panel - editor */
+.pn-editor-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  max-height: 75vh;
+}
+
+.pn-editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pn-editor-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.pn-editor-meta {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.pn-field {
+  margin-bottom: var(--spacing-lg);
+}
+
+.pn-field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.pn-field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--spacing-xs);
+  display: block;
+}
+
+.pn-textarea {
+  width: 100%;
+  min-height: 120px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.85rem;
+  font-family: inherit;
+  line-height: 1.8;
+  resize: vertical;
+  outline: none;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent calc(1.8em - 1px),
+    var(--border-color) calc(1.8em - 1px),
+    var(--border-color) 1.8em
+  );
+  background-position: 0 var(--spacing-sm);
+}
+
+.pn-textarea:focus {
+  border-color: var(--accent-primary);
+}
+
+.pn-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.pn-no-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .pn-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pn-prospect-list {
+    max-height: 30vh;
+  }
+}

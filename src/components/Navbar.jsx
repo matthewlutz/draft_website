@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useAdmin } from '../hooks/useAdmin';
 import UserMenu from './UserMenu';
 import './Navbar.css';
 
@@ -8,6 +9,7 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -75,6 +77,23 @@ function Navbar() {
           >
             Mock Draft
           </Link>
+          <Link
+            to="/team-needs"
+            className={`nav-link ${isActive('/team-needs') ? 'active' : ''}`}
+            onClick={() => setIsOpen(false)}
+          >
+            Team Needs
+          </Link>
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+              onClick={() => setIsOpen(false)}
+            >
+              Admin
+            </Link>
+          )}
 
           {!user ? (
             <div className="nav-auth">

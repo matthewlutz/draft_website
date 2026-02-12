@@ -773,3 +773,4 @@ export function getPlayerNotes(playerId) {
 export function isPlayerReviewed(playerId) {
   return reviewedPlayerIds.has(playerId);
 }
+

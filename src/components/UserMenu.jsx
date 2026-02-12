@@ -24,7 +24,11 @@ function UserMenu() {
 
   const handleLogout = async () => {
     setOpen(false);
-    await logout();
+    try {
+      await logout();
+    } catch {
+      // logout already clears state
+    }
     navigate('/');
   };
 
