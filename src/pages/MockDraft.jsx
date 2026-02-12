@@ -19,7 +19,7 @@ function MockDraft({ myBoard }) {
   const [roundCount, setRoundCount] = useState(1);
   const [randomness, setRandomness] = useState(35);
   const [teamNeedsWeight, setTeamNeedsWeight] = useState(35);
-  const [selectedBoard, setSelectedBoard] = useState('consensus'); // 'consensus', 'mrlutz', 'custom'
+  const [selectedBoard, setSelectedBoard] = useState('mrlutz'); // 'consensus', 'mrlutz', 'custom'
   const [isSimulating, setIsSimulating] = useState(false);
   const [trades, setTrades] = useState([]); // Array of { pick, fromTeam, toTeam }
   const [showTradeModal, setShowTradeModal] = useState(false);

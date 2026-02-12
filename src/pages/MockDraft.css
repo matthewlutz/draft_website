@@ -1,17 +1,17 @@
 .mock-draft-page {
-  padding: var(--spacing-lg) 0;
+  padding: var(--space-page) 0;
   min-height: 100vh;
 }
 
 .page-header {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--space-section);
   text-align: center;
   width: 100%;
 }
 
 .page-header h1 {
   margin: 0 auto;
-  font-size: 2rem;
+  font-size: var(--font-title);
   font-weight: 700;
   color: #ffffff;
   text-align: center;
@@ -25,7 +25,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
 }
 
@@ -49,7 +49,7 @@
 
 .team-selection h2 {
   margin-bottom: var(--spacing-xs);
-  font-size: 1.5rem;
+  font-size: var(--font-title);
 }
 
 .team-selection > p {
@@ -65,7 +65,7 @@
 }
 
 .team-select-actions .btn {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   padding: var(--spacing-sm) var(--spacing-md);
 }
 
@@ -76,7 +76,7 @@
   margin-bottom: var(--spacing-xl);
 }
 
-@media (min-width: 600px) {
+@media (min-width: 481px) {
   .team-grid {
     gap: var(--spacing-sm);
   }
@@ -150,7 +150,7 @@
 }
 
 .team-pick {
-  font-size: 0.65rem;
+  font-size: var(--font-xs);
   color: var(--text-muted);
   font-weight: 600;
   opacity: 0.7;
@@ -162,7 +162,7 @@
 }
 
 .team-abbrev {
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   font-weight: 800;
   letter-spacing: -0.5px;
 }
@@ -193,13 +193,13 @@
 }
 
 .round-selection h3 {
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   margin-bottom: var(--spacing-xs);
   color: var(--text-primary);
 }
 
 .round-selection > p {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
@@ -246,7 +246,7 @@
 
 .round-num {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   color: var(--text-primary);
   transition: color 0.2s ease;
 }
@@ -283,7 +283,7 @@
 }
 
 .cpu-setting > p {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   margin-bottom: var(--spacing-md);
   flex: 1;
@@ -352,12 +352,12 @@
   justify-content: space-between;
   align-items: center;
   margin-top: var(--spacing-sm);
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
 }
 
 .slider-value {
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   font-weight: 700;
   color: var(--text-primary);
   background: var(--bg-card);
@@ -371,12 +371,12 @@
 }
 
 .team-selection-inner h2 {
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   margin-bottom: var(--spacing-xs);
 }
 
 .team-selection-inner > p {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   margin-bottom: var(--spacing-lg);
   color: var(--text-secondary);
 }
@@ -388,12 +388,12 @@
 }
 
 .board-selection h3 {
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   margin-bottom: var(--spacing-xs);
 }
 
 .board-selection > p {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
@@ -445,7 +445,7 @@
 
 .teams-selected {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 .teams-selected strong {
@@ -454,7 +454,7 @@
 
 .btn-large {
   padding: var(--spacing-md) var(--spacing-2xl);
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -462,7 +462,7 @@
 .start-draft-btn {
   min-width: 200px;
   padding: var(--spacing-lg) var(--spacing-2xl);
-  font-size: 1.2rem;
+  font-size: var(--font-heading);
   background: #FFB612;
   color: #000;
   border: none;
@@ -500,14 +500,14 @@
 }
 
 .progress-label {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
 }
 
 .progress-text {
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   font-weight: 700;
 }
 
@@ -567,7 +567,7 @@
 
 .draft-board-header h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -632,7 +632,7 @@
   border: 1px solid var(--border-color);
   border-radius: 50%;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: var(--font-body);
   flex-shrink: 0;
 }
 
@@ -692,24 +692,24 @@
 }
 
 .pick-player .position-badge {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   padding: 2px 6px;
 }
 
 .pick-player .player-name {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 .pick-player .player-college {
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: var(--font-small);
 }
 
 .pick-empty {
   flex: 1;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: var(--font-body);
 }
 
 .pick-empty.on-clock {
@@ -785,7 +785,7 @@
 }
 
 .clock-label {
-  font-size: 0.65rem;
+  font-size: var(--font-xs);
   font-weight: 800;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -805,7 +805,7 @@
 }
 
 .clock-pick {
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   font-weight: 700;
   background: rgba(0, 0, 0, 0.2);
   padding: 4px 10px;
@@ -820,13 +820,13 @@
 }
 
 .clock-team-name {
-  font-size: 1.4rem;
+  font-size: var(--font-heading);
   font-weight: 800;
   line-height: 1.2;
 }
 
 .your-pick-badge {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   padding: 6px 12px;
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -837,7 +837,7 @@
 }
 
 .clock-team-needs {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: rgba(255, 255, 255, 0.85);
   margin-top: var(--spacing-xs);
   font-weight: 500;
@@ -854,13 +854,13 @@
 }
 
 .needs-label {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   opacity: 0.7;
   font-weight: 600;
 }
 
 .need-tag {
-  font-size: 0.65rem;
+  font-size: var(--font-xs);
   padding: 3px 8px;
   background: rgba(0, 0, 0, 0.25);
   border-radius: 3px;
@@ -889,7 +889,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 .search-input:focus {
@@ -908,7 +908,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   cursor: pointer;
 }
 
@@ -932,13 +932,13 @@
 }
 
 .available-header h3 {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   margin: 0;
 }
 
 .available-count {
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
   background: var(--bg-card);
   padding: 2px 8px;
@@ -999,7 +999,7 @@
   border-radius: 50%;
   font-weight: 700;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   flex-shrink: 0;
 }
 
@@ -1036,7 +1036,7 @@
 }
 
 .draft-player-row .position-badge {
-  font-size: 0.65rem;
+  font-size: var(--font-xs);
   padding: 2px 6px;
 }
 
@@ -1049,14 +1049,14 @@
 
 .draft-player-row .player-name {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .draft-player-row .player-college {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -1065,7 +1065,7 @@
 
 .draft-player-row .btn-small {
   padding: 6px 12px;
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   font-weight: 700;
 }
 
@@ -1089,7 +1089,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: var(--spacing-md);
-  font-size: 1.5rem;
+  font-size: var(--font-title);
 }
 
 .cpu-controls h3 {
@@ -1099,7 +1099,7 @@
 
 .cpu-controls p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   margin-bottom: var(--spacing-lg);
 }
 
@@ -1133,11 +1133,11 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto var(--spacing-lg);
-  font-size: 2.5rem;
+  font-size: var(--font-display);
 }
 
 .draft-complete h2 {
-  font-size: 1.8rem;
+  font-size: var(--font-title);
   color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
 }
@@ -1191,7 +1191,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 1.2rem;
+  font-size: var(--font-heading);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -1208,7 +1208,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   cursor: pointer;
   min-width: 80px;
 }
@@ -1231,7 +1231,7 @@
 .review-pick-num {
   width: 28px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-muted);
 }
 
@@ -1253,12 +1253,12 @@
 .review-player-name {
   flex: 1;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 .no-picks-inline {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   padding: var(--spacing-md);
   text-align: center;
 }
@@ -1295,13 +1295,9 @@
 }
 
 /* Mobile adjustments - Small screens */
-@media (max-width: 599px) {
+@media (max-width: 480px) {
   .mock-draft-page {
     padding: var(--spacing-md) 0;
-  }
-
-  .page-header h1 {
-    font-size: 1.5rem;
   }
 
   .team-selection {
@@ -1333,11 +1329,6 @@
   .round-option {
     width: 36px;
     height: 36px;
-    font-size: 0.8rem;
-  }
-
-  .draft-board-header h2 {
-    font-size: 0.85rem;
   }
 
   .draft-interface {
@@ -1368,7 +1359,7 @@
   }
 
   .results-modal-header h2 {
-    font-size: 1.1rem;
+    font-size: var(--font-heading);
   }
 
   .results-modal-content {
@@ -1394,7 +1385,7 @@
 }
 
 /* Mobile adjustments - Tablets and below */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .draft-progress {
     flex-direction: column;
     gap: var(--spacing-md);
@@ -1419,7 +1410,7 @@
   .pick-number {
     width: 24px;
     height: 24px;
-    font-size: 0.7rem;
+    font-size: var(--font-small);
   }
 
   .pick-team {
@@ -1453,7 +1444,7 @@
   }
 
   .pick-player .player-name {
-    font-size: 0.75rem;
+    font-size: var(--font-small);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1545,7 +1536,7 @@
 .draft-board .pick-number {
   width: 28px;
   height: 28px;
-  font-size: 0.8rem;
+  font-size: var(--font-body);
 }
 
 .draft-board .pick-team {
@@ -1560,17 +1551,17 @@
 }
 
 .draft-board .pick-player .position-badge {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   padding: 2px 6px;
 }
 
 .draft-board .pick-player .player-name {
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   white-space: nowrap;
 }
 
 .draft-board .pick-empty {
-  font-size: 0.85rem;
+  font-size: var(--font-body);
 }
 
 .draft-board-header {
@@ -1578,7 +1569,7 @@
 }
 
 .draft-board-header h2 {
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 /* Simulating Indicator */
@@ -1608,7 +1599,7 @@
 
 .simulating-indicator p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 /* User Pick Actions */
@@ -1656,7 +1647,7 @@
 
 .trade-modal-header h2 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: var(--font-heading);
 }
 
 .close-btn {
@@ -1694,7 +1685,7 @@
 }
 
 .trade-side h3 {
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   margin-bottom: var(--spacing-md);
   color: var(--text-secondary);
 }
@@ -1733,11 +1724,11 @@
 
 .trade-pick-btn .pick-num {
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 .trade-pick-btn .pick-info {
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
 }
 
@@ -1752,7 +1743,7 @@
 
 .no-picks {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   text-align: center;
   padding: var(--spacing-lg);
 }
@@ -1825,7 +1816,7 @@
 
 /* Debug Toggle in Draft Board Header */
 .debug-toggle-small {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   padding: 3px 10px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -1877,28 +1868,28 @@
 
 .debug-pick {
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: var(--font-body);
   color: var(--text-muted);
   min-width: 28px;
 }
 
 .debug-team {
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   min-width: 32px;
 }
 
 .debug-player {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-primary);
   flex: 1;
 }
 
 .debug-confidence {
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: var(--font-body);
   color: var(--accent-gold);
 }
 
@@ -1906,7 +1897,7 @@
   display: flex;
   gap: var(--spacing-md);
   font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
   margin-bottom: 2px;
 }
@@ -1918,13 +1909,13 @@
 .debug-meta {
   display: flex;
   gap: var(--spacing-lg);
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
   margin-bottom: 2px;
 }
 
 .debug-runners {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
   font-style: italic;
 }
@@ -1985,7 +1976,7 @@
 
 .results-modal-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--font-title);
 }
 
 .results-round-filter {
@@ -2003,7 +1994,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -2050,14 +2041,14 @@
 .results-pick-num {
   width: 28px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-muted);
 }
 
 .results-team {
   width: 40px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
 }
 
@@ -2077,14 +2068,14 @@
 }
 
 .results-pick-row .position-badge {
-  font-size: 0.7rem;
+  font-size: var(--font-small);
   padding: 2px 6px;
 }
 
 .results-player-name {
   flex: 1;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2129,7 +2120,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 1.2rem;
+  font-size: var(--font-heading);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -2140,7 +2131,7 @@
 }
 
 .team-nav-name {
-  font-size: 1.2rem;
+  font-size: var(--font-heading);
   font-weight: 700;
   min-width: 60px;
   text-align: center;
@@ -2189,16 +2180,16 @@
 
 .my-picks-pick-num {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: var(--font-heading);
 }
 
 .my-picks-round {
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
 }
 
 .my-picks-row .position-badge {
-  font-size: 0.75rem;
+  font-size: var(--font-small);
   padding: 3px 8px;
 }
 
@@ -2210,7 +2201,7 @@
 
 .my-picks-college {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 .no-picks-message {

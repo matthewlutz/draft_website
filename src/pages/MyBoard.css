@@ -1,5 +1,5 @@
 .my-board-page {
-  padding: var(--spacing-xl) 0;
+  padding: var(--space-section) 0;
   min-height: 100vh;
 }
 
@@ -47,7 +47,7 @@
 
 .guest-banner p {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--font-small);
 }
 
 /* Board Actions Row */
@@ -63,7 +63,7 @@
 }
 
 .admin-publish-status {
-  font-size: 0.8rem;
+  font-size: var(--font-small);
   font-weight: 500;
 }
 
@@ -90,7 +90,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: var(--font-small);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -113,7 +113,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--spacing-2xl) var(--spacing-xl);
+  padding: var(--space-section) var(--space-page);
   background: var(--bg-secondary);
   border: 2px dashed var(--border-color);
   border-radius: var(--radius-lg);
@@ -148,7 +148,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-md);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
@@ -212,7 +212,7 @@
 /* Filter Notice */
 .filter-notice {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
   padding: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
@@ -240,8 +240,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: var(--rank-size);
+  height: var(--rank-size);
   background: var(--bg-secondary);
   border: 2px solid var(--accent-gold);
   border-radius: 50%;
@@ -249,7 +249,7 @@
 }
 
 .board-item-rank .rank-number {
-  font-size: 1rem;
+  font-size: var(--font-small);
   font-weight: 800;
   color: var(--text-primary);
 }
@@ -270,8 +270,8 @@
 }
 
 .board-item-logo {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -317,7 +317,7 @@
 }
 
 .board-item-pos-rank {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -365,7 +365,7 @@
 }
 
 .board-item-college {
-  font-size: 0.875rem;
+  font-size: var(--font-small);
   color: var(--text-secondary);
 }
 
@@ -376,7 +376,7 @@
 }
 
 .board-item-comparison {
-  font-size: 0.8rem;
+  font-size: var(--font-small);
   color: var(--text-muted);
 }
 
@@ -425,8 +425,8 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-xl);
-  margin-top: var(--spacing-xl);
+  padding: var(--space-page);
+  margin-top: var(--space-section);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -438,19 +438,10 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 599px) {
+@media (max-width: 480px) {
   .board-item {
     flex-wrap: wrap;
     padding: var(--spacing-sm);
-  }
-
-  .board-item-rank {
-    width: 36px;
-    height: 36px;
-  }
-
-  .board-item-rank .rank-number {
-    font-size: 0.875rem;
   }
 
   .board-item-drag {
@@ -473,7 +464,7 @@
   }
 
   .board-item-college {
-    font-size: 0.75rem;
+    font-size: var(--font-xs);
   }
 
   .board-item-actions {
@@ -495,18 +486,10 @@
     flex-direction: column;
     text-align: center;
   }
-
-  .page-header-content h1 {
-    font-size: 1.5rem;
-  }
-
-  .board-stats-text {
-    font-size: 0.8rem;
-  }
 }
 
 /* Tablet adjustments */
-@media (min-width: 600px) and (max-width: 767px) {
+@media (min-width: 481px) and (max-width: 768px) {
   .board-item-name {
     max-width: 180px;
   }
@@ -531,7 +514,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
+  padding: var(--space-page);
   max-width: 420px;
   width: 100%;
 }
@@ -539,19 +522,19 @@
 .clear-modal h3 {
   color: var(--text-primary);
   margin-bottom: var(--spacing-md);
-  font-size: 1.25rem;
+  font-size: var(--font-heading);
 }
 
 .clear-modal p {
   color: var(--text-secondary);
   margin-bottom: var(--spacing-md);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   line-height: 1.5;
 }
 
 .clear-modal-instruction {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: var(--font-small);
 }
 
 .clear-modal-instruction strong {
@@ -566,7 +549,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
   margin-bottom: var(--spacing-lg);
 }
 

@@ -31,6 +31,22 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
+  /* Fluid spacing — scales with viewport */
+  --space-page: clamp(0.75rem, 2vw, 2rem);
+  --space-section: clamp(1.5rem, 4vw, 3rem);
+
+  /* Fluid typography */
+  --font-display: clamp(1.75rem, 5vw, 3.5rem);
+  --font-title: clamp(1.25rem, 3.5vw, 2.5rem);
+  --font-heading: clamp(1.1rem, 2.5vw, 1.75rem);
+  --font-body: clamp(0.8rem, 1.5vw, 0.9375rem);
+  --font-small: clamp(0.7rem, 1.2vw, 0.875rem);
+  --font-xs: clamp(0.65rem, 1vw, 0.75rem);
+
+  /* Fluid element sizing */
+  --logo-size: clamp(20px, 3.5vw, 36px);
+  --rank-size: clamp(28px, 4.5vw, 44px);
+
   /* Border radius */
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -44,6 +60,12 @@
 
   /* Mobile */
   --tap-target-min: 44px;
+
+  /* Breakpoints (reference only — used in media queries)
+     --bp-mobile:  480px
+     --bp-tablet:  768px
+     --bp-desktop: 1024px
+  */
 }
 
 * {
@@ -76,24 +98,12 @@ body {
   flex-direction: column;
 }
 
-/* Container */
+/* Container — fluid padding scales automatically */
 .container {
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
-}
-
-@media (max-width: 599px) {
-  .container {
-    padding: 0 var(--spacing-md);
-  }
-}
-
-@media (max-width: 374px) {
-  .container {
-    padding: 0 var(--spacing-sm);
-  }
+  padding: 0 var(--space-page);
 }
 
 /* Typography */
@@ -103,28 +113,11 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-/* Mobile-first typography */
-h1 { font-size: 1.5rem; color: #ffffff; font-weight: 700; }
-h2 { font-size: 1.25rem; }
-h3 { font-size: 1.1rem; }
+/* Fluid typography — no breakpoints needed */
+h1 { font-size: var(--font-display); color: #ffffff; font-weight: 700; }
+h2 { font-size: var(--font-title); }
+h3 { font-size: var(--font-heading); }
 h4 { font-size: 1rem; }
-
-@media (min-width: 600px) {
-  h1 { font-size: 2.25rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.5rem; }
-}
-
-@media (min-width: 768px) {
-  h1 { font-size: 2.75rem; }
-  h2 { font-size: 2rem; }
-  h3 { font-size: 1.75rem; }
-}
-
-@media (min-width: 1024px) {
-  h1 { font-size: 3.5rem; }
-  h2 { font-size: 2.5rem; }
-}
 
 /* Links */
 a {
@@ -188,21 +181,7 @@ a:hover {
 .btn-small {
   padding: var(--spacing-sm) var(--spacing-md);
   min-height: 36px;
-  font-size: 0.75rem;
-}
-
-/* Mobile button sizing */
-@media (max-width: 599px) {
-  .btn {
-    padding: var(--spacing-sm) var(--spacing-md);
-    min-height: 40px;
-    font-size: 0.8rem;
-  }
-
-  .btn-small {
-    min-height: 32px;
-    font-size: 0.7rem;
-  }
+  font-size: var(--font-xs);
 }
 
 /* Cards */
@@ -225,22 +204,14 @@ a:hover {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   font-weight: 700;
   border-radius: var(--radius-sm);
   text-transform: uppercase;
-  min-width: 40px;
+  min-width: 32px;
   background: var(--bg-card-hover);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-}
-
-@media (max-width: 599px) {
-  .position-badge {
-    padding: 2px var(--spacing-xs);
-    font-size: 0.65rem;
-    min-width: 32px;
-  }
 }
 
 /* Round Badge */
@@ -249,7 +220,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   border-radius: var(--radius-sm);
   background: var(--bg-secondary);
@@ -271,21 +242,14 @@ a:hover {
   color: var(--text-secondary);
 }
 
-@media (max-width: 599px) {
-  .round-badge {
-    padding: 2px var(--spacing-xs);
-    font-size: 0.6rem;
-  }
-}
-
-/* Form elements */
+/* Form elements — fluid sizing */
 input, select {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: var(--spacing-sm) var(--spacing-md);
   min-height: var(--tap-target-min);
-  font-size: 0.875rem;
+  font-size: var(--font-small);
   color: var(--text-primary);
   transition: all var(--transition-fast);
   width: 100%;
@@ -298,15 +262,6 @@ input:focus, select:focus {
 
 input::placeholder {
   color: var(--text-muted);
-}
-
-/* Mobile form elements */
-@media (max-width: 599px) {
-  input, select {
-    min-height: 40px;
-    font-size: 0.8rem;
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
 }
 
 /* Scrollbar */
@@ -413,22 +368,6 @@ input::placeholder {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Fixed navbar on mobile for reliable sticky behavior */
-@media (max-width: 767px) {
-  .nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    backdrop-filter: none;
-    background: var(--bg-primary);
-  }
-
-  /* Add padding to body to compensate for fixed navbar */
-  body {
-    padding-top: 56px;
-  }
-}
 
 .nav-content {
   display: flex;
@@ -438,7 +377,7 @@ input::placeholder {
   gap: var(--spacing-lg);
 }
 
-@media (max-width: 599px) {
+@media (max-width: 480px) {
   .nav-content {
     padding: var(--spacing-sm) 0;
     gap: var(--spacing-sm);
@@ -523,6 +462,22 @@ input::placeholder {
   .nav-link:hover {
     background: var(--bg-card);
     border-bottom-color: transparent;
+  }
+}
+
+/* Fixed navbar on mobile */
+@media (max-width: 768px) {
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    backdrop-filter: none;
+    background: var(--bg-primary);
+  }
+
+  body {
+    padding-top: 56px;
   }
 }
 

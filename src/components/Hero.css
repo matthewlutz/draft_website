@@ -28,7 +28,7 @@
 }
 
 .hero-eyebrow {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -37,7 +37,7 @@
 }
 
 .hero-title {
-  font-size: 2.8rem;
+  font-size: clamp(2rem, 6vw, 5rem);
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: var(--spacing-lg);
@@ -49,22 +49,10 @@
   color: var(--text-primary);
 }
 
-@media (min-width: 768px) {
-  .hero-title {
-    font-size: 4rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-title {
-    font-size: 5rem;
-  }
-}
-
 .hero-subtitle {
   max-width: 520px;
   margin: 0 auto var(--spacing-xl);
-  font-size: 1rem;
+  font-size: var(--font-body);
   color: var(--text-secondary);
   line-height: 1.7;
 }
@@ -85,7 +73,7 @@
 
 .hero-actions .btn {
   padding: var(--spacing-md) var(--spacing-xl);
-  font-size: 0.9rem;
+  font-size: var(--font-body);
 }
 
 /* Benefits Grid */
@@ -102,7 +90,7 @@
   margin: 0 auto;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 769px) {
   .hero-benefits {
     grid-template-columns: 1fr 1fr;
   }
@@ -121,7 +109,7 @@
 }
 
 .hero-benefit-number {
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
@@ -130,34 +118,26 @@
 }
 
 .hero-benefit-title {
-  font-size: 0.85rem;
+  font-size: var(--font-small);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .hero-benefit-desc {
-  font-size: 0.775rem;
+  font-size: var(--font-xs);
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
 /* Mobile adjustments */
-@media (max-width: 599px) {
+@media (max-width: 480px) {
   .hero {
     padding: 80px 0 60px;
   }
 
   .hero-content {
     padding: var(--spacing-md) var(--spacing-lg);
-  }
-
-  .hero-title {
-    font-size: 2rem;
-  }
-
-  .hero-subtitle {
-    font-size: 0.9rem;
   }
 
   .hero-actions {
@@ -175,13 +155,5 @@
 
   .hero-benefit {
     padding: var(--spacing-md);
-  }
-
-  .hero-benefit-title {
-    font-size: 0.8rem;
-  }
-
-  .hero-benefit-desc {
-    font-size: 0.7rem;
   }
 }

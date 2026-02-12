@@ -20,14 +20,14 @@
   text-decoration: none;
 }
 
-/* Rank */
+/* Rank — fluid sizing */
 .player-rank {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: var(--rank-size);
+  height: var(--rank-size);
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: 50%;
@@ -35,15 +35,15 @@
 }
 
 .rank-number {
-  font-size: 1.125rem;
+  font-size: var(--font-body);
   font-weight: 800;
   color: var(--text-primary);
 }
 
-/* Team Logo */
+/* Team Logo — fluid sizing */
 .player-logo {
-  width: 48px;
-  height: 48px;
+  width: var(--logo-size);
+  height: var(--logo-size);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -57,8 +57,8 @@
 }
 
 .team-logo-placeholder {
-  width: 40px;
-  height: 40px;
+  width: calc(var(--logo-size) * 0.83);
+  height: calc(var(--logo-size) * 0.83);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,11 +76,11 @@
 /* Player Info */
 .player-info {
   flex: 1;
-  min-width: 150px;
+  min-width: 100px;
 }
 
 .player-name {
-  font-size: 1rem;
+  font-size: var(--font-body);
   font-weight: 700;
   margin-bottom: 2px;
   color: var(--text-primary);
@@ -92,7 +92,7 @@
 }
 
 .player-college {
-  font-size: 0.8rem;
+  font-size: var(--font-xs);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -108,13 +108,13 @@
 }
 
 .player-pos-rank {
-  font-size: 0.7rem;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: var(--text-secondary);
 }
 
 .player-notes {
-  font-size: 0.65rem;
+  font-size: var(--font-xs);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -129,7 +129,7 @@
 }
 
 .physical-item {
-  font-size: 0.8rem;
+  font-size: var(--font-small);
   color: var(--text-secondary);
 }
 
@@ -153,19 +153,11 @@
   transition: all 150ms ease;
   background: var(--bg-card-hover);
   color: var(--text-primary);
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   white-space: nowrap;
-}
-
-.card-add-btn-text:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  border-color: var(--text-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
 }
 
 .card-add-btn-text:active {
@@ -178,11 +170,21 @@
   border-color: #22c55e;
 }
 
-.card-add-btn-text.on-board:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+@media (hover: hover) {
+  .card-add-btn-text:hover {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border-color: var(--text-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+  }
+
+  .card-add-btn-text.on-board:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
 }
 
 /* Player List Container */
@@ -192,42 +194,18 @@
   gap: var(--spacing-sm);
 }
 
-@media (max-width: 599px) {
-  .player-list {
-    gap: var(--spacing-xs);
-  }
-}
-
-/* Tablet Responsive */
-@media (max-width: 1023px) {
+/* Hide physical stats below desktop */
+@media (max-width: 1024px) {
   .player-physical {
     display: none;
   }
 }
 
-@media (max-width: 767px) {
+/* Tablet and below — compact layout */
+@media (max-width: 768px) {
   .player-card-inner {
     flex-wrap: wrap;
     padding: var(--spacing-md);
-  }
-
-  .player-rank {
-    width: 40px;
-    height: 40px;
-  }
-
-  .rank-number {
-    font-size: 1rem;
-  }
-
-  .player-logo {
-    width: 40px;
-    height: 40px;
-  }
-
-  .player-info {
-    flex: 1;
-    min-width: 100px;
   }
 
   .player-position {
@@ -235,40 +213,22 @@
   }
 }
 
-/* Mobile */
-@media (max-width: 599px) {
+/* Mobile — stacked action button */
+@media (max-width: 480px) {
   .player-card {
     flex-wrap: wrap;
   }
 
   .player-card-inner {
     flex: 1 1 100%;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-md);
     padding: var(--spacing-xs) var(--spacing-sm);
   }
 
-  .player-rank {
-    width: 32px;
-    height: 32px;
-  }
-
-  .rank-number {
-    font-size: 0.8rem;
-  }
-
   .player-logo {
-    width: 28px;
-    height: 28px;
-  }
-
-  .team-logo-placeholder {
-    width: 24px;
-    height: 24px;
-  }
-
-  .team-logo-placeholder svg {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
+    margin: 0 4px;
   }
 
   .player-info {
@@ -277,14 +237,12 @@
   }
 
   .player-name {
-    font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .player-college {
-    font-size: 0.65rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -293,12 +251,6 @@
   .player-position {
     width: auto;
     flex-shrink: 0;
-  }
-
-  .position-badge {
-    padding: 2px var(--spacing-xs);
-    font-size: 0.65rem;
-    min-width: 32px;
   }
 
   .player-pos-rank {
@@ -314,6 +266,9 @@
   .card-add-btn-text {
     width: 100%;
     min-height: 36px;
-    font-size: 0.7rem;
+  }
+
+  .player-list {
+    gap: var(--spacing-xs);
   }
 }

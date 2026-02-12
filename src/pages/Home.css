@@ -26,19 +26,19 @@
   gap: 20px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .featured-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .featured-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .featured-grid {
     grid-template-columns: 1fr;
   }
@@ -60,7 +60,7 @@
   gap: var(--spacing-md);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 769px) {
   .positions-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -89,13 +89,13 @@
 }
 
 .position-count {
-  font-size: 2rem;
+  font-size: var(--font-title);
   font-weight: 800;
   color: var(--text-primary);
 }
 
 .position-label {
-  font-size: 0.75rem;
+  font-size: var(--font-xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -154,7 +154,7 @@
 .action-card p {
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
-  font-size: 0.875rem;
+  font-size: var(--font-small);
 }
 
 /* Sources Section */
@@ -184,7 +184,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  font-size: var(--font-small);
   color: var(--text-secondary);
   transition: all var(--transition-fast);
 }
