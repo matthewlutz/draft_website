@@ -376,18 +376,34 @@ function TeamNeeds() {
         </div>
 
         <div className="division-tabs">
-          {divisions.map((division) => (
-            <button
-              key={division}
-              className={`division-tab ${selectedDivision === division ? 'active' : ''}`}
-              onClick={() => {
-                setSelectedDivision(division);
-                setExpandedTeam(null);
-              }}
-            >
-              {division}
-            </button>
-          ))}
+          <div className="division-col">
+            {divisions.filter(d => d.startsWith('AFC')).map((division) => (
+              <button
+                key={division}
+                className={`division-tab ${selectedDivision === division ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedDivision(division);
+                  setExpandedTeam(null);
+                }}
+              >
+                {division}
+              </button>
+            ))}
+          </div>
+          <div className="division-col">
+            {divisions.filter(d => d.startsWith('NFC')).map((division) => (
+              <button
+                key={division}
+                className={`division-tab ${selectedDivision === division ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedDivision(division);
+                  setExpandedTeam(null);
+                }}
+              >
+                {division}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="teams-list">

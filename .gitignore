@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 .env
+src/data/needs.txt
+src/data/order/
 
 # Editor directories and files
 .vscode/*
