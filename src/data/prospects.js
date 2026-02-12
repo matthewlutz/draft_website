@@ -1,6 +1,10 @@
 // 2026 NFL Draft Prospects - Top 500
 // Data imported from CSV
 
+function generateSlug(name) {
+  return name.toLowerCase().replace(/[.']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 const csvData = `Rank,Player Name,College,Position,Height,Weight
 1,Arvell Reese,Ohio State,OLB,"6'4""",243
 2,Rueben Bain Jr.,Miami (FL),EDGE,"6'3""",275
@@ -468,6 +472,7 @@ const csvData = `Rank,Player Name,College,Position,Height,Weight
 function parseCSV(csv) {
   const lines = csv.trim().split('\n');
   const prospects = [];
+  const slugsSeen = new Set();
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
@@ -530,8 +535,15 @@ function parseCSV(csv) {
       else if (rank <= 270) projectedRound = 7;
       else projectedRound = 'UDFA';
 
+      let slug = generateSlug(name);
+      if (slugsSeen.has(slug)) {
+        slug = generateSlug(name + ' ' + college);
+      }
+      slugsSeen.add(slug);
+
       prospects.push({
-        id: rank,
+        id: slug,
+        rank,
         name,
         position,
         college,
@@ -554,9 +566,9 @@ function parseCSV(csv) {
 
 export const prospects = parseCSV(csvData);
 
-// Helper function to get a prospect by ID
+// Helper function to get a prospect by ID (slug string)
 export const getProspectById = (id) => {
-  return prospects.find(p => p.id === parseInt(id));
+  return prospects.find(p => p.id === id);
 };
 
 // Extract unique positions from the data

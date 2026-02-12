@@ -284,7 +284,7 @@ function PlayerModal({ player, isOpen, onClose, onNext, onPrev, onToggleBoard, i
                 </>
               )}
               <span className="modal-badge-divider">|</span>
-              <span className="modal-badge-item">Consensus #{player.id}</span>
+              <span className="modal-badge-item">Consensus #{player.rank}</span>
             </div>
 
             {/* Tab Buttons */}

@@ -1,9 +1,9 @@
 // Player scouting notes from Mr. Lutz's evaluations
-// Maps player ID to their pros/cons
+// Maps player slug ID to their pros/cons
 
 export const playerNotes = {
   // Fernando Mendoza - QB - Indiana
-  1: {
+  'fernando-mendoza': {
     pros: [
       "Mature leader",
       "Pretty good accuracy",
@@ -28,7 +28,7 @@ export const playerNotes = {
   },
 
   // Caleb Downs - S - Ohio State
-  2: {
+  'caleb-downs': {
     pros: [
       "21 years old",
       "3 year high end contributor",
@@ -52,7 +52,7 @@ export const playerNotes = {
   },
 
   // Rueben Bain Jr. - EDGE - Miami
-  3: {
+  'rueben-bain-jr': {
     pros: [
       "21 years old",
       "6'3 270 - great size",
@@ -81,7 +81,7 @@ export const playerNotes = {
   },
 
   // Arvell Reese - OLB - Ohio State
-  4: {
+  'arvell-reese': {
     pros: [
       "20 years old",
       "4.5 speed",
@@ -109,7 +109,7 @@ export const playerNotes = {
   },
 
   // Peter Woods - DL3T - Clemson
-  5: {
+  'peter-woods': {
     pros: [
       "EXTREMELY explosive",
       "Very fluid as an athlete",
@@ -131,7 +131,7 @@ export const playerNotes = {
   },
 
   // Francis Mauigoa - OT - Miami
-  6: {
+  'francis-mauigoa': {
     pros: [
       "20 years old",
       "Absolute BEAST in run-blocking",
@@ -155,7 +155,7 @@ export const playerNotes = {
   },
 
   // Keldric Faulk - DL5T - Auburn
-  7: {
+  'keldric-faulk': {
     pros: [
       "Huge size",
       "Very versatile player, can play all over the line, even over center",
@@ -180,7 +180,7 @@ export const playerNotes = {
   },
 
   // Spencer Fano - OT - Utah
-  8: {
+  'spencer-fano': {
     pros: [
       "Gave up 0 sacks and only 5 hurries in 2025",
       "Only gave up 1 sack in 2024",
@@ -203,7 +203,7 @@ export const playerNotes = {
   },
 
   // Jordyn Tyson - WR - Arizona State
-  9: {
+  'jordyn-tyson': {
     comparisons: "Jerry Jeudy, Stefon Diggs, Golden Tate, Ceedee Lamb, Cooper Kupp",
     pros: [
       "Strong hands, doesn't drop a lot",
@@ -226,7 +226,7 @@ export const playerNotes = {
   },
 
   // Jeremiyah Love - RB - Notre Dame
-  10: {
+  'jeremiyah-love': {
     pros: [
       "4.5 yards after contact, best in country for RBs > 120 attempts (PFF)",
       "39 runs of 10+ yards, led the country (PFF)",
@@ -249,7 +249,7 @@ export const playerNotes = {
   },
 
   // Jermod McCoy - CB - Tennessee
-  11: {
+  'jermod-mccoy': {
     pros: [
       "Twitched up athlete",
       "ELITE hip flexibility, can quickly adjust to sharpest angles",
@@ -271,7 +271,7 @@ export const playerNotes = {
   },
 
   // Carnell Tate - WR - Ohio State
-  12: {
+  'carnell-tate': {
     comparisons: "Tee Higgins, Chris Godwin, Davante Adams, Calvin Ridley",
     pros: [
       "Tall physical receiver",
@@ -295,7 +295,7 @@ export const playerNotes = {
   },
 
   // Mansoor Delane - CB - LSU
-  13: {
+  'mansoor-delane': {
     pros: [
       "22 years old - 4.44 40",
       "Great football IQ",
@@ -318,12 +318,12 @@ export const playerNotes = {
   },
 
   // Makai Lemon - WR - USC
-  14: {
+  'makai-lemon': {
     reviewed: true
   },
 
   // Avieon Terrell - CB - Clemson
-  15: {
+  'avieon-terrell': {
     pros: [
       "Extremely fluid hips",
       "Great long speed",
@@ -345,7 +345,7 @@ export const playerNotes = {
   },
 
   // T.J. Parker - EDGE - Clemson
-  16: {
+  'tj-parker': {
     pros: [
       "Fantastic at setting the edge",
       "6 forced fumbles in 2024",
@@ -364,7 +364,7 @@ export const playerNotes = {
   },
 
   // Cashius Howell - EDGE - Texas A&M
-  17: {
+  'cashius-howell': {
     pros: [
       "Good production",
       "28.8% true pass set win rate",
@@ -390,7 +390,7 @@ export const playerNotes = {
   },
 
   // David Bailey - EDGE - Texas Tech
-  18: {
+  'david-bailey': {
     comparisons: "Micah Parsons, Chop Robinson",
     pros: [
       "Best pure pass rusher in class - not close",
@@ -417,7 +417,7 @@ export const playerNotes = {
   },
 
   // Kevin Concepcion (KC) - WR - Texas A&M
-  20: {
+  'kevin-concepcion': {
     pros: [
       "Very flexible hips allow him to break at sharp angles",
       "Absolutely ELECTRIC after the catch",
@@ -438,7 +438,7 @@ export const playerNotes = {
   },
 
   // C.J. Allen - OLB - Georgia
-  23: {
+  'cj-allen': {
     pros: [
       "8 TFLs in 2025",
       "Green dot at Georgia",
@@ -462,7 +462,7 @@ export const playerNotes = {
   },
 
   // Kenyon Sadiq - TE - Oregon
-  24: {
+  'kenyon-sadiq': {
     pros: [
       "20 years old",
       "Incredibly athletic (Feldman's freaks list)",
@@ -489,7 +489,7 @@ export const playerNotes = {
   },
 
   // L.T. Overton - DL5T - Alabama
-  26: {
+  'lt-overton': {
     pros: [
       "Relentless pursuit to the football",
       "9.7% stop rate is among highest at position in 2025",
@@ -505,7 +505,7 @@ export const playerNotes = {
   },
 
   // Sonny Styles - OLB - Ohio State
-  28: {
+  'sonny-styles': {
     pros: [
       "4.48 40",
       "Violent hands",
@@ -530,7 +530,7 @@ export const playerNotes = {
   },
 
   // Colton Hood - CB - Tennessee
-  30: {
+  'colton-hood': {
     pros: [
       "Good length",
       "Plays with fluid hips",
@@ -554,7 +554,7 @@ export const playerNotes = {
   },
 
   // Chris Bell - WR - Louisville
-  34: {
+  'chris-bell': {
     comparisons: "DK Metcalf, AJ Brown, Xavier Legette",
     pros: [
       "Great recognition sitting in zones",
@@ -574,13 +574,13 @@ export const playerNotes = {
   },
 
   // Dillon Thieneman - S - Oregon
-  39: {
+  'dillon-thieneman': {
     pros: [],
     cons: []
   },
 
   // Zachariah Branch - WR - Georgia
-  41: {
+  'zachariah-branch': {
     comparisons: "Rondale Moore",
     pros: [
       "Very elusive",
@@ -596,7 +596,7 @@ export const playerNotes = {
   },
 
   // Lee Hunter - DL1T - Texas Tech
-  44: {
+  'lee-hunter': {
     pros: [
       "Incredible size",
       "Good first step for his size",
@@ -618,7 +618,7 @@ export const playerNotes = {
   },
 
   // Akheem Mesidor - DL5T - Miami
-  52: {
+  'akheem-mesidor': {
     pros: [
       "20.6% PRWR",
       "17.5 TFLs in 2025",
@@ -641,7 +641,7 @@ export const playerNotes = {
   },
 
   // Emmanuel McNeil-Warren - S - Toledo
-  54: {
+  'emmanuel-mcneil-warren': {
     pros: [
       "33.3% forced interception rate (PFF)",
       "3 year contributor",
@@ -663,7 +663,7 @@ export const playerNotes = {
   },
 
   // Keith Abney II - CB - Arizona State
-  59: {
+  'keith-abney-ii': {
     pros: [
       "46.1 passer rating when targeted (PFF)",
       "44.4% completion percentage when targeted",
@@ -684,7 +684,7 @@ export const playerNotes = {
   },
 
   // Malik Muhammad - CB - Texas
-  62: {
+  'malik-muhammad': {
     pros: [
       "3 year contributor",
       "Position versatility (can play slot and box)",
@@ -706,7 +706,7 @@ export const playerNotes = {
   },
 
   // Derrick Moore - EDGE - Michigan
-  66: {
+  'derrick-moore': {
     pros: [
       "Good production",
       "AMAZING power",
@@ -727,7 +727,7 @@ export const playerNotes = {
   },
 
   // Chris Johnson - CB - San Diego State
-  72: {
+  'chris-johnson': {
     pros: [
       "Great anticipatory skills + great reaction time",
       "Great ball skills",
@@ -745,7 +745,7 @@ export const playerNotes = {
   },
 
   // Darrell Jackson Jr. - DL1T - Florida State
-  98: {
+  'darrell-jackson-jr': {
     pros: [
       "7'2 (86\") wingspan - 99th percentile",
       "11\" hands - 97th percentile",
@@ -762,7 +762,7 @@ export const playerNotes = {
 };
 
 // Get set of player IDs that have been reviewed/scouted
-export const reviewedPlayerIds = new Set(Object.keys(playerNotes).map(Number));
+export const reviewedPlayerIds = new Set(Object.keys(playerNotes));
 
 // Helper function to get notes for a player
 export function getPlayerNotes(playerId) {
@@ -773,4 +773,3 @@ export function getPlayerNotes(playerId) {
 export function isPlayerReviewed(playerId) {
   return reviewedPlayerIds.has(playerId);
 }
-

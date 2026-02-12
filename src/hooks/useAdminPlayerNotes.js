@@ -13,7 +13,7 @@ export function useAdminPlayerNotes() {
       .then(({ data }) => {
         if (!cancelled && data && data.length > 0) {
           const merged = { ...playerNotes };
-          const ids = new Set(Object.keys(playerNotes).map(Number));
+          const ids = new Set(Object.keys(playerNotes));
           data.forEach(row => {
             merged[row.prospect_id] = {
               pros: row.pros || [],

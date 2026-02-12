@@ -163,7 +163,7 @@ export default function AdminPlayerNotes() {
                 className={`pn-prospect-item ${selectedId === p.id ? 'selected' : ''}`}
                 onClick={() => selectPlayer(p.id)}
               >
-                <span className="pn-prospect-rank">#{p.id}</span>
+                <span className="pn-prospect-rank">#{p.rank}</span>
                 <div className="pn-prospect-info">
                   <span className="pn-prospect-name">{p.name}</span>
                   <span className="pn-prospect-meta">{p.position} - {p.college}</span>

@@ -29,9 +29,11 @@ export default function AdminBigBoard() {
         limit: 1,
       });
       if (data && data.length > 0) {
-        setBoardIds(data[0].prospect_ids || []);
+        const ids = data[0].prospect_ids || [];
         setBoardId(data[0].id);
         setLastSaved(data[0].updated_at);
+        // Only use Supabase data if IDs are slugs (post-migration)
+        setBoardIds(ids.length > 0 && typeof ids[0] === 'string' ? ids : [...customBigBoardRankings]);
       } else {
         // Fall back to static data
         setBoardIds([...customBigBoardRankings]);
@@ -161,7 +163,7 @@ export default function AdminBigBoard() {
           <div className="bb-search-results">
             {searchResults.map(p => (
               <button key={p.id} className="bb-search-result" onClick={() => addPlayer(p.id)}>
-                <span className="bb-search-rank">#{p.id}</span>
+                <span className="bb-search-rank">#{p.rank}</span>
                 <span className="bb-search-name">{p.name}</span>
                 <span className="bb-search-meta">{p.position} - {p.college}</span>
               </button>
@@ -193,7 +195,7 @@ export default function AdminBigBoard() {
                 <span className="bb-row-name">{prospect.name}</span>
                 <span className="bb-row-meta">{prospect.position} - {prospect.college}</span>
               </div>
-              <div className="bb-row-consensus">#{prospect.id}</div>
+              <div className="bb-row-consensus">#{prospect.rank}</div>
               <div className="bb-row-actions">
                 <button
                   className="bb-row-btn"

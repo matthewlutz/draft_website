@@ -273,8 +273,8 @@ function MockDraft({ myBoard }) {
       const premium = premiums[player.position] || 0;
       const posValueScore = 0.5 + premium;
 
-      // 4. Reach Penalty (player.id = consensus rank)
-      const reachGap = player.id - pickInfo.pick;
+      // 4. Reach Penalty (player.rank = consensus rank)
+      const reachGap = player.rank - pickInfo.pick;
       let reachPenalty = 0;
       if (reachGap > 40) reachPenalty = 0.3;
       else if (reachGap > 25) reachPenalty = 0.15;
@@ -776,7 +776,7 @@ function MockDraft({ myBoard }) {
                                   className="draft-player-link"
                                   onClick={() => { setModalPlayer(player); setModalPlayerIndex(index); }}
                                 >
-                                  <span className="player-rank">{player.id}</span>
+                                  <span className="player-rank">{player.rank}</span>
                                   <div className="player-logo-small">
                                     {getCollegeLogo(player.college) ? (
                                       <img src={getCollegeLogo(player.college)} alt={player.college} />

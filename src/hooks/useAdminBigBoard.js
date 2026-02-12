@@ -14,7 +14,11 @@ export function useAdminBigBoard() {
     })
       .then(({ data }) => {
         if (!cancelled && data && data.length > 0 && data[0].prospect_ids) {
-          setRankings(data[0].prospect_ids);
+          const ids = data[0].prospect_ids;
+          // Only use Supabase data if IDs are slugs (post-migration)
+          if (ids.length > 0 && typeof ids[0] === 'string') {
+            setRankings(ids);
+          }
         }
       })
       .catch(() => {})

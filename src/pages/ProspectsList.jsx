@@ -100,7 +100,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
 
       return ranked;
     }
-    return prospects.map(p => ({ ...p, customRank: p.id }));
+    return prospects.map(p => ({ ...p, customRank: p.rank }));
   }, [boardType, hasCustomBoard, customBigBoardRankings]);
 
   // Position ranks based on board order
@@ -452,7 +452,7 @@ function ProspectsList({ myBoard, onToggleBoard }) {
                   <PlayerCard
                     key={player.id}
                     player={player}
-                    rank={boardType === 'custom' ? player.customRank : player.id}
+                    rank={boardType === 'custom' ? player.customRank : player.rank}
                     onAddToBoard={onToggleBoard}
                     isOnBoard={isOnBoard(player.id)}
                     positionRank={positionRanks[player.id]}
