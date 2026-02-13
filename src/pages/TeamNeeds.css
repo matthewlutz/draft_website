@@ -41,8 +41,20 @@
   gap: var(--spacing-xs);
 }
 
+@media (min-width: 769px) {
+  .division-tabs {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+
+  .division-col {
+    display: contents;
+  }
+}
+
 .division-tab {
-  width: 100%;
+  flex: 1;
+  min-width: 100px;
   padding: var(--spacing-sm) var(--spacing-md);
   background: transparent;
   border: 1px solid transparent;
