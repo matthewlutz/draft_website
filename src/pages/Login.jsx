@@ -3,22 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
-function mapFirebaseError(code) {
-  switch (code) {
-    case 'auth/user-not-found':
-      return 'No account found with this email.';
-    case 'auth/wrong-password':
-    case 'auth/invalid-credential':
-      return 'Incorrect email or password.';
-    case 'auth/invalid-email':
-      return 'Please enter a valid email address.';
-    case 'auth/too-many-requests':
-      return 'Too many failed attempts. Please try again later.';
-    case 'auth/popup-closed-by-user':
-      return 'Google sign-in was cancelled.';
-    default:
-      return 'An error occurred. Please try again.';
+function mapAuthError(err) {
+  const msg = err?.message?.toLowerCase() || '';
+  if (msg.includes('invalid login') || msg.includes('invalid credentials') || msg.includes('wrong password')) {
+    return 'Incorrect email or password.';
   }
+  if (msg.includes('invalid email') || msg.includes('valid email')) {
+    return 'Please enter a valid email address.';
+  }
+  if (msg.includes('rate limit') || msg.includes('too many')) {
+    return 'Too many failed attempts. Please try again later.';
+  }
+  if (msg.includes('email not confirmed')) {
+    return 'Please confirm your email before signing in.';
+  }
+  return err?.message || 'An error occurred. Please try again.';
 }
 
 function Login() {
@@ -53,7 +52,7 @@ function Login() {
       await login(email, password);
       navigate('/my-board');
     } catch (err) {
-      setError(mapFirebaseError(err.code));
+      setError(mapAuthError(err));
     } finally {
       setSubmitting(false);
     }
@@ -65,7 +64,7 @@ function Login() {
       await loginWithGoogle();
       // Navigation handled by useEffect after checking display name
     } catch (err) {
-      setError(mapFirebaseError(err.code));
+      setError(mapAuthError(err));
     }
   };
 

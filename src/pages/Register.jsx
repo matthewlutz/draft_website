@@ -3,19 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Register.css';
 
-function mapFirebaseError(code) {
-  switch (code) {
-    case 'auth/email-already-in-use':
-      return 'An account with this email already exists.';
-    case 'auth/invalid-email':
-      return 'Please enter a valid email address.';
-    case 'auth/weak-password':
-      return 'Password must be at least 6 characters.';
-    case 'auth/popup-closed-by-user':
-      return 'Google sign-in was cancelled.';
-    default:
-      return 'An error occurred. Please try again.';
+function mapAuthError(err) {
+  const msg = err?.message?.toLowerCase() || '';
+  if (msg.includes('already registered') || msg.includes('already been registered')) {
+    return 'An account with this email already exists.';
   }
+  if (msg.includes('invalid email') || msg.includes('valid email')) {
+    return 'Please enter a valid email address.';
+  }
+  if (msg.includes('password') && (msg.includes('short') || msg.includes('weak') || msg.includes('least'))) {
+    return 'Password must be at least 8 characters.';
+  }
+  if (msg.includes('email not confirmed')) {
+    return 'Please confirm your email before signing in.';
+  }
+  return err?.message || 'An error occurred. Please try again.';
 }
 
 function Register({ hasLocalBoard, onMigrate }) {
@@ -83,7 +85,7 @@ function Register({ hasLocalBoard, onMigrate }) {
         navigate('/my-board');
       }
     } catch (err) {
-      setError(mapFirebaseError(err.code));
+      setError(mapAuthError(err));
     } finally {
       setSubmitting(false);
     }
@@ -99,7 +101,7 @@ function Register({ hasLocalBoard, onMigrate }) {
         navigate('/my-board');
       }
     } catch (err) {
-      setError(mapFirebaseError(err.code));
+      setError(mapAuthError(err));
     }
   };
 

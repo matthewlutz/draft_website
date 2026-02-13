@@ -119,6 +119,21 @@ export function AuthProvider({ children }) {
       },
     });
     if (error) throw error;
+
+    // signUp with email confirmation enabled returns user but no session.
+    // Sign in immediately to establish a session.
+    if (data.user && !data.session) {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) throw signInError;
+      if (signInData.user) {
+        await ensureUserProfile(signInData.user);
+      }
+      return signInData.user;
+    }
+
     if (data.user) {
       await ensureUserProfile(data.user);
     }
