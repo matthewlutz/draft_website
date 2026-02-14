@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
         .from('users')
         .select('id, role')
         .eq('id', authUser.id)
-        .single();
+        .maybeSingle();
 
       if (existing) {
         setUserRole(existing.role || 'USER');
@@ -23,14 +23,13 @@ export function AuthProvider({ children }) {
           eq: { id: authUser.id },
         }).catch(() => {});
       } else {
-        const { error: insertError } = await supabase.from('users').insert({
-          id: authUser.id,
-          email: authUser.email,
-          display_name: authUser.user_metadata?.display_name || authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
+        await supabaseRest('users', 'POST', {
+          data: {
+            id: authUser.id,
+            email: authUser.email,
+            display_name: authUser.user_metadata?.display_name || authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
+          },
         });
-        if (insertError) {
-          console.error('Failed to create user profile:', insertError);
-        }
         setUserRole('USER');
       }
     } catch (err) {
