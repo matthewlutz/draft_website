@@ -1,16 +1,17 @@
 -- Fix users table RLS policies and auto-create profiles
 -- Run this in Supabase SQL Editor (Dashboard > SQL Editor)
+-- Safe to re-run — drops existing policies/triggers first
 
 -- 1. Add RLS policies for the users table
--- Allow authenticated users to insert their own profile
+DROP POLICY IF EXISTS "users_insert_own" ON users;
 CREATE POLICY "users_insert_own" ON users FOR INSERT
   WITH CHECK (id = auth.uid());
 
--- Allow authenticated users to update their own profile
+DROP POLICY IF EXISTS "users_update_own" ON users;
 CREATE POLICY "users_update_own" ON users FOR UPDATE
   USING (id = auth.uid());
 
--- Allow authenticated users to read all profiles
+DROP POLICY IF EXISTS "users_select_authenticated" ON users;
 CREATE POLICY "users_select_authenticated" ON users FOR SELECT
   USING (true);
 
@@ -33,6 +34,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { supabaseQuery, supabaseRest } from '../../supabase';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuditLog } from '../../hooks/useAuditLog';
-import { ArrowLeft } from 'lucide-react';
+import { getProspectById } from '../../data/prospects';
+import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import './AdminUserDetail.css';
 
 export default function AdminUserDetail() {
@@ -15,6 +16,7 @@ export default function AdminUserDetail() {
   const [auditEntries, setAuditEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [expandedBoard, setExpandedBoard] = useState(null);
 
   useEffect(() => {
     loadUser();
@@ -24,7 +26,7 @@ export default function AdminUserDetail() {
     try {
       const [userRes, boardsRes, auditRes] = await Promise.all([
         supabaseQuery('users', { eq: { id }, limit: 1 }),
-        supabaseQuery('boards', { eq: { user_id: id }, select: 'id,name,is_public,created_at' }).catch(() => ({ data: [] })),
+        supabaseQuery('boards', { eq: { user_id: id }, select: 'id,name,is_public,created_at,prospect_ids' }).catch(() => ({ data: [] })),
         supabaseQuery('audit_log', { eq: { target_id: id }, order: { column: 'created_at', ascending: false }, limit: 20 }).catch(() => ({ data: [] })),
       ]);
       if (userRes.data && userRes.data.length > 0) {
@@ -179,20 +181,49 @@ export default function AdminUserDetail() {
               <thead>
                 <tr>
                   <th>Name</th>
+                  <th>Players</th>
                   <th>Public</th>
                   <th>Created</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                {boards.map(b => (
-                  <tr key={b.id}>
-                    <td>{b.name || 'Untitled'}</td>
-                    <td>{b.is_public ? 'Yes' : 'No'}</td>
-                    <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      {b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}
-                    </td>
-                  </tr>
-                ))}
+                {boards.map(b => {
+                  const isExpanded = expandedBoard === b.id;
+                  const prospects = (b.prospect_ids || []).map(id => getProspectById(id)).filter(Boolean);
+                  return (
+                    <tr key={b.id} style={{ cursor: 'pointer' }} onClick={() => setExpandedBoard(isExpanded ? null : b.id)}>
+                      <td colSpan={5}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+                          <span style={{ fontWeight: 500, flex: 1 }}>{b.name || 'Untitled'}</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{prospects.length} players</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{b.is_public ? 'Public' : 'Private'}</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                            {b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}
+                          </span>
+                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                        </div>
+                        {isExpanded && prospects.length > 0 && (
+                          <div style={{ marginTop: 'var(--spacing-sm)', padding: 'var(--spacing-sm) 0', borderTop: '1px solid var(--border-color)' }}>
+                            {prospects.map((p, i) => (
+                              <div key={p.id} style={{ display: 'flex', gap: 'var(--spacing-sm)', padding: '4px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                <span style={{ width: 28, textAlign: 'right', color: 'var(--text-muted)', flexShrink: 0 }}>{i + 1}.</span>
+                                <span style={{ color: 'var(--text-primary)', fontWeight: 500, minWidth: 160 }}>{p.name}</span>
+                                <span style={{ minWidth: 40 }}>{p.position}</span>
+                                <span>{p.college}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {isExpanded && prospects.length === 0 && (
+                          <div style={{ marginTop: 'var(--spacing-sm)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            Empty board
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

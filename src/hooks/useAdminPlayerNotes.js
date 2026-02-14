@@ -15,6 +15,8 @@ export function useAdminPlayerNotes() {
           const merged = { ...playerNotes };
           const ids = new Set(Object.keys(playerNotes));
           data.forEach(row => {
+            // Only merge Supabase data if prospect_id is a slug (post-migration)
+            if (typeof row.prospect_id !== 'string') return;
             merged[row.prospect_id] = {
               pros: row.pros || [],
               cons: row.cons || [],
